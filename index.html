@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Design - Portal Desain Cetak Siswa & Guru</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f5ff',
+                            100: '#e0ebff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .step-active { border-color: #2563eb; background-color: #eff6ff; color: #1d4ed8; }
+        .step-done { border-color: #10b981; background-color: #ecfdf5; color: #047857; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 700; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .floating-side-btn {
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3), 0 8px 10px -6px rgba(15, 23, 42, 0.2);
+        }
+
+        :root {
+            --app-bg-image: url('WhatsApp Image 2026-10-02 at 11.59.43.jpeg');
+        }
+
+        #app-bg-layer {
+            background-image: var(--app-bg-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Pop-art texture for menu workflow cards */
+        .popart-stage-card {
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.94);
+        }
+
+        .popart-stage-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: var(--app-bg-image);
+            background-size: cover;
+            background-position: center;
+            opacity: 0.12;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events-none;
+            z-index: 0;
+        }
+
+        .popart-stage-card:hover::before {
+            opacity: 0.22;
+            transform: scale(1.05);
+        }
+
+        .popart-stage-card > * {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+    <!-- Konfigurasi Latar Belakang Grafiti Permanen -->
+    <style>
+        body {
+            background-image: url('https://images.unsplash.com/photo-1579783900882-c0d3dad7b119');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+
+    <!-- Firebase SDK Online Database -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+      import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "KUNCI_API_ANDA",
+        authDomain: "studiodesign-d7dc5.firebaseapp.com",
+        projectId: "studiodesign-d7dc5",
+        storageBucket: "studiodesign-d7dc5.appspot.com",
+        messagingSenderId: "ID_PENGIRIM",
+        appId: "ID_APLIKASI"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      window.db = db;
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-800 font-sans min-h-screen flex flex-col relative selection:bg-blue-500 selection:text-white">
+    <!-- DYNAMIC WALLPAPER BACKGROUND LAYER -->
+    <div id="app-bg-layer" class="fixed inset-0 -z-20 bg-cover bg-center bg-fixed pointer-events-none" style="background-image: url('WhatsApp Image 2026-10-02 at 11.59.43.jpeg');"></div>
+    <div id="app-bg-overlay" class="fixed inset-0 -z-10 bg-slate-950/75 backdrop-blur-[1px] pointer-events-none transition-all"></div>
+
+    <!-- FLOATING TOAST NOTIFICATION -->
+    <div id="toast-container" class="fixed top-20 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- NAVBAR -->
+    <header class="bg-slate-900/90 backdrop-blur-md text-white sticky top-0 z-40 shadow-lg border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('gallery')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    <i class="fa-solid fa-print"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">Studio<span class="text-blue-400">Design</span></h1>
+                    <p class="text-xs text-slate-400">Portal Alur Kerja & Galeri Desain Cetak</p>
+                </div>
+            </div>
+
+            <!-- Global Navigation Buttons -->
+            <nav class="hidden md:flex items-center gap-2">
+                <button onclick="switchView('gallery')" id="nav-gallery" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition flex items-center gap-2 text-slate-300">
+                    <i class="fa-solid fa-shapes"></i> Galeri Publik
+                </button>
+                <button onclick="checkStudentAccess()" id="nav-student" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition flex items-center gap-2 text-slate-300">
+                    <i class="fa-solid fa-pen-ruler"></i> Lembar Kerja Siswa
+                </button>
+                <button onclick="checkTeacherAccess()" id="nav-teacher" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition flex items-center gap-2 text-slate-300">
+                    <i class="fa-solid fa-user-tie"></i> Portal Guru
+                </button>
+            </nav>
+
+            <!-- User Auth Profile Indicator -->
+            <div class="flex items-center gap-2.5">
+                <div id="user-badge" class="hidden sm:flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="user-badge-text" class="text-slate-300">Tamu</span>
+                </div>
+                <button onclick="openLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-right-to-bracket"></i> <span id="login-btn-text">Masuk / Ganti Akun</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= 1. PUBLIC GALLERY VIEW ================= -->
+        <section id="view-gallery" class="space-y-6">
+            <div class="bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden border border-white/10">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs px-3 py-1 rounded-full font-medium inline-block mb-3">
+                        <i class="fa-solid fa-award mr-1"></i> Pameran Desain Merchandise Khas Daerah
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight mb-3">Galeri Merchandise Cetak Tematik Kota</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
+                        Eksplorasi portofolio merchandise cetak siswa (Tumbler, Kaos, Totebag, Gantungan Kunci, PIN, Stiker) yang mengangkat kekayaan visual budaya <strong>Banyuwangi, Ponorogo, Malang, Surabaya, Madiun,</strong> dan <strong>Madura</strong>.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openLoginModal('siswa')" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Buat Tugas Merchandise Kelompok
+                        </button>
+                        <button onclick="openLoginModal('guru')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-5 py-2.5 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-lock"></i> Login Guru Evaluator
+                        </button>
+                    </div>
+                </div>
+                <i class="fa-solid fa-shirt absolute -right-10 -bottom-10 text-slate-800/40 text-[200px] pointer-events-none"></i>
+            </div>
+
+            <!-- Filters & Search Bar with City and Merchandise Controls -->
+            <div class="glass-card p-5 rounded-2xl shadow-xl border border-white/40 space-y-3">
+                <div class="flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
+                    <!-- City Badges Filter -->
+                    <div class="space-y-1.5 flex-1">
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-rose-500"></i> Filter Tema Kota:
+                        </label>
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1.5" id="city-filter-buttons">
+                            <button onclick="filterCity('all')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-blue-600 text-white shadow-sm whitespace-nowrap">Semua Kota</button>
+                            <button onclick="filterCity('Banyuwangi')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">Banyuwangi</button>
+                            <button onclick="filterCity('Ponorogo')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">Ponorogo</button>
+                            <button onclick="filterCity('Malang')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">Malang</button>
+                            <button onclick="filterCity('Surabaya')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">Surabaya</button>
+                            <button onclick="filterCity('Madiun')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">Madiun</button>
+                            <button onclick="filterCity('Madura')" class="city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">Madura</button>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="relative w-full lg:w-72 self-end">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="gallery-search" oninput="renderGallery()" placeholder="Cari karya / merchandise..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+                </div>
+
+                <!-- Merchandise Type Filter -->
+                <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
+                        <i class="fa-solid fa-box-open text-blue-500"></i> Merchandise:
+                    </span>
+                    <button onclick="filterMerch('all')" class="merch-filter-btn text-xs font-bold px-3 py-1 rounded-lg bg-blue-100 text-blue-800 transition">Semua</button>
+                    <button onclick="filterMerch('Tumbler')" class="merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">Tumbler</button>
+                    <button onclick="filterMerch('Kaos')" class="merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">Kaos</button>
+                    <button onclick="filterMerch('Totebag')" class="merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">Totebag</button>
+                    <button onclick="filterMerch('Gantungan Kunci')" class="merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">Gantungan Kunci</button>
+                    <button onclick="filterMerch('PIN')" class="merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">PIN</button>
+                    <button onclick="filterMerch('Stiker')" class="merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">Stiker</button>
+                </div>
+            </div>
+
+            <!-- Public Gallery Cards Grid -->
+            <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Gallery Cards rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- ================= 2. STUDENT WORKSPACE VIEW ================= -->
+        <section id="view-student" class="hidden space-y-6">
+            <!-- Student Workspace Modern Banner Header -->
+            <div class="relative bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 p-6 sm:p-8 rounded-3xl text-white shadow-xl overflow-hidden border border-slate-800">
+                <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-stretch gap-6">
+                    <div class="space-y-3 max-w-2xl flex-1 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 border border-blue-400/30 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md">
+                                <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+                                <span id="student-header-badge">Merchandise Cetak Tematik Kota</span>
+                            </div>
+                            <h2 id="student-project-title-heading" class="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                                Judul Proyek Desain Merchandise
+                            </h2>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-300 pt-1">
+                            <div class="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+                                <i class="fa-solid fa-users text-blue-400"></i>
+                                <span class="text-slate-400">Kelompok:</span>
+                                <strong id="student-group-name-display" class="text-white font-bold">-</strong>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+                                <i class="fa-solid fa-user-group text-cyan-400"></i>
+                                <span class="text-slate-400">Jumlah Tim:</span>
+                                <strong id="student-team-count-display" class="text-cyan-300 font-bold">5 Anggota</strong>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+                                <i class="fa-solid fa-city text-amber-400"></i>
+                                <span class="text-slate-400">Tema Kota:</span>
+                                <strong id="student-city-display" class="text-amber-300 font-bold">-</strong>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+                                <i class="fa-solid fa-box-open text-emerald-400"></i>
+                                <span class="text-slate-400">Merchandise:</span>
+                                <strong id="student-merch-display" class="text-emerald-300 font-bold">-</strong>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+                                <i class="fa-solid fa-graduation-cap text-indigo-400"></i>
+                                <span class="text-slate-400">Kelas:</span>
+                                <strong id="student-class-display" class="text-white font-bold">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Stats & Quick Action Stacked Vertically on the Side (Top to Bottom) -->
+                    <div class="w-full lg:w-64 bg-slate-800/80 p-5 rounded-2xl border border-slate-700/80 backdrop-blur-md flex flex-col justify-between gap-3.5 shrink-0 shadow-lg">
+                        <!-- 1. Total Kelengkapan Header & Value -->
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-pie text-blue-400"></i> Total Kelengkapan
+                            </span>
+                            <span id="student-progress-percent" class="font-black text-sm text-blue-400">0%</span>
+                        </div>
+
+                        <!-- 2. Progress Bar -->
+                        <div class="w-full bg-slate-900/90 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700/80 shadow-inner">
+                            <div id="student-progress-bar" class="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-500 shadow-sm" style="width: 0%"></div>
+                        </div>
+
+                        <!-- 3. Status Badge (Draft / Proses / Selesai) -->
+                        <div class="w-full text-center">
+                            <span id="student-status-badge" class="block w-full py-2 px-3 rounded-xl text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all text-center">
+                                Draft
+                            </span>
+                        </div>
+
+                        <!-- 4. Tombol Simpan -->
+                        <button type="button" onclick="saveStudentProject()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white py-2.5 px-4 rounded-xl text-xs font-black shadow-lg shadow-emerald-950/40 transition-all flex items-center justify-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-floppy-disk text-sm"></i> <span>Simpan Tugas</span>
+                        </button>
+                    </div>
+                </div>
+                <i class="fa-solid fa-layer-group absolute -right-6 -bottom-6 text-white/5 text-[150px] pointer-events-none"></i>
+            </div>
+
+            <!-- Feedback Alert from Teacher -->
+            <div id="student-feedback-box" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl text-xs text-amber-900 flex items-start gap-3 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-sm shrink-0">
+                    <i class="fa-solid fa-comment-dots"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-amber-950 text-sm mb-0.5">Catatan Evaluasi / Masukan dari Guru:</p>
+                    <p id="student-feedback-text" class="text-amber-800 leading-relaxed italic">"..."</p>
+                </div>
+            </div>
+
+            <!-- FLOATING SIDE NAVIGATION BUTTONS (LEFT & RIGHT) -->
+            <div id="student-floating-nav" class="hidden">
+                <!-- Floating Left (Kembali) -->
+                <button type="button" id="floating-btn-prev" onclick="goToPrevStep()" title="Tahap Sebelumnya" class="floating-side-btn fixed left-3 sm:left-5 top-1/2 -translate-y-1/2 z-40 bg-slate-900/90 hover:bg-blue-600 text-white p-3.5 sm:px-4 sm:py-3.5 rounded-2xl backdrop-blur-md border border-slate-700/80 transition-all duration-300 flex items-center gap-2.5 group hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-chevron-left text-sm group-hover:-translate-x-1 transition-transform"></i>
+                    <div class="hidden lg:flex flex-col text-left text-[11px] leading-tight pr-1">
+                        <span class="text-slate-400 group-hover:text-blue-200 text-[9px] uppercase font-bold tracking-wider">Kembali</span>
+                        <span id="floating-prev-label" class="font-bold text-white truncate max-w-[110px]">Ringkasan</span>
+                    </div>
+                </button>
+
+                <!-- Floating Right (Next) -->
+                <button type="button" id="floating-btn-next" onclick="goToNextStep()" title="Tahap Selanjutnya" class="floating-side-btn fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 bg-blue-600 hover:bg-blue-700 text-white p-3.5 sm:px-4 sm:py-3.5 rounded-2xl backdrop-blur-md border border-blue-400/40 transition-all duration-300 flex items-center gap-2.5 group hover:scale-105 active:scale-95 shadow-blue-500/25">
+                    <div class="hidden lg:flex flex-col text-right text-[11px] leading-tight pl-1">
+                        <span class="text-blue-200 text-[9px] uppercase font-bold tracking-wider">Lanjut</span>
+                        <span id="floating-next-label" class="font-bold text-white truncate max-w-[110px]">Pembagian Tugas</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-sm group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+            <!-- FULL-WIDTH STAGE CONTENT PANELS AREA -->
+            <div class="w-full">
+                <form id="form-student-project" onsubmit="event.preventDefault(); saveStudentProject();" class="space-y-6">
+
+                    <!-- OVERVIEW DASHBOARD PANEL -->
+                    <div id="step-panel-overview" class="step-panel glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-8">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-5">
+                            <div>
+                                <h3 class="font-extrabold text-slate-900 text-xl flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm">
+                                        <i class="fa-solid fa-compass-drafting"></i>
+                                    </span>
+                                    Alur Perancangan Desain Cetak
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    Pantau kelengkapan tiap fase desain kelompok Anda di bawah ini dan klik kartu untuk mengisi.
+                                </p>
+                            </div>
+                            <button type="button" onclick="setActiveStep('team')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm self-start sm:self-auto">
+                                <span>Mulai Pembagian Tugas</span>
+                                <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                            </button>
+                        </div>
+
+                        <!-- 6 Interactive Workflow Grid Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <!-- Card Team (5 atau 6 Anggota) -->
+                            <div onclick="setActiveStep('team')" class="popart-stage-card group relative p-5 rounded-2xl border border-slate-200/90 hover:border-cyan-500 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="w-8 h-8 rounded-xl bg-cyan-50 text-cyan-600 font-black text-xs flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-600 group-hover:text-white transition"><i class="fa-solid fa-users"></i></span>
+                                        <span class="text-xs font-bold text-slate-400 group-hover:text-cyan-600 flex items-center gap-1 transition">
+                                            Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1.5 group-hover:text-cyan-600 transition" id="dash-summary-team-title">Pembagian Tugas (5 / 6 Anggota)</h4>
+                                    <p id="dash-summary-team" class="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                                        Belum diatur. Klik untuk membagi peran dan tanggung jawab anggota kelompok.
+                                    </p>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-cyan-600">
+                                    <i class="fa-solid fa-user-check mr-1.5"></i> <span id="dash-summary-team-footer">5 atau 6 Peran Spesialisasi</span>
+                                </div>
+                            </div>
+
+                            <!-- Card 01 -->
+                            <div onclick="setActiveStep(1)" class="popart-stage-card group relative p-5 rounded-2xl border border-slate-200/90 hover:border-blue-500 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition">01</span>
+                                        <span class="text-xs font-bold text-slate-400 group-hover:text-blue-600 flex items-center gap-1 transition">
+                                            Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1.5 group-hover:text-blue-600 transition">Riset & Target Pasar</h4>
+                                    <p id="dash-summary-1" class="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                                        Belum diisi. Klik untuk memasukkan riset target audiens dan latar belakang.
+                                    </p>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-blue-600">
+                                    <i class="fa-solid fa-magnifying-glass mr-1.5"></i> Riset & Moodboard
+                                </div>
+                            </div>
+
+                            <!-- Card 02 -->
+                            <div onclick="setActiveStep(2)" class="popart-stage-card group relative p-5 rounded-2xl border border-slate-200/90 hover:border-indigo-500 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-black text-xs flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition">02</span>
+                                        <span class="text-xs font-bold text-slate-400 group-hover:text-indigo-600 flex items-center gap-1 transition">
+                                            Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1.5 group-hover:text-indigo-600 transition">Design Brief & Material</h4>
+                                    <p id="dash-summary-2" class="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                                        Belum diisi. Klik untuk menentukan jenis media, dimensi cetak, dan kertas.
+                                    </p>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-indigo-600">
+                                    <i class="fa-solid fa-box mr-1.5"></i> Ukuran & Jenis Bahan
+                                </div>
+                            </div>
+
+                            <!-- Card 03 -->
+                            <div onclick="setActiveStep(3)" class="popart-stage-card group relative p-5 rounded-2xl border border-slate-200/90 hover:border-purple-500 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="w-8 h-8 rounded-xl bg-purple-600 text-white font-black text-xs flex items-center justify-center group-hover:scale-110 transition">03</span>
+                                        <span class="text-xs font-bold text-slate-400 group-hover:text-purple-600 flex items-center gap-1 transition">
+                                            Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1.5 group-hover:text-purple-600 transition">Eksplorasi Visual & Warna</h4>
+                                    <p id="dash-summary-3" class="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                                        Belum diisi. Klik untuk memilih warna, tipografi, dan sketsa layout.
+                                    </p>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-purple-600">
+                                    <i class="fa-solid fa-palette mr-1.5"></i> <span id="dash-summary-3-footer">Tugas Kolaboratif (1 atau 2 Orang)</span>
+                                </div>
+                            </div>
+
+                            <!-- Card 04 -->
+                            <div onclick="setActiveStep(4)" class="popart-stage-card group relative p-5 rounded-2xl border border-slate-200/90 hover:border-emerald-500 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-black text-xs flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition">04</span>
+                                        <span class="text-xs font-bold text-slate-400 group-hover:text-emerald-600 flex items-center gap-1 transition">
+                                            Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1.5 group-hover:text-emerald-600 transition">Final Design & Mockup</h4>
+                                    <p id="dash-summary-4" class="text-xs text-slate-500 leading-relaxed line-clamp-3">
+                                        Belum diisi. Klik untuk mengunggah URL mockup dan link PDF High-Res.
+                                    </p>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-emerald-600">
+                                    <i class="fa-solid fa-image mr-1.5"></i> 3D Mockup & High-Res Drive
+                                </div>
+                            </div>
+
+                            <!-- Card 05 -->
+                            <div onclick="setActiveStep(5)" class="popart-stage-card group relative p-5 rounded-2xl border border-slate-200/90 hover:border-amber-500 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 font-black text-xs flex items-center justify-center group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition">05</span>
+                                        <span class="text-xs font-bold text-slate-400 group-hover:text-amber-600 flex items-center gap-1 transition">
+                                            Buka <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-sm mb-1.5 group-hover:text-amber-600 transition">Pre-Press & Syarat Mesin</h4>
+                                    <p id="dash-summary-5" class="text-xs text-slate-500 leading-relaxed">
+                                        Belum diverifikasi. Ceklist mode CMYK, 300 DPI, Bleed, dan Outlines.
+                                    </p>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-[11px] font-semibold text-amber-600">
+                                    <i class="fa-solid fa-sliders mr-1.5"></i> CMYK • Bleed 3mm • 300 DPI
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP PANEL TEAM: PEMBAGIAN TUGAS (5 ATAU 6 ANGGOTA) -->
+                    <div id="step-panel-team" class="step-panel hidden glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-6">
+                        <!-- Guidance Banner with Team Size Selector -->
+                        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200/80 rounded-2xl p-5 text-xs text-cyan-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3.5">
+                                <div class="w-9 h-9 rounded-xl bg-cyan-600 text-white flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                    <i class="fa-solid fa-users-gear"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-cyan-950 text-sm mb-1">Pengaturan & Pembagian Tugas Tim</h4>
+                                    <p class="text-cyan-800 leading-relaxed">
+                                        Kelompok beranggotakan <strong>5 orang</strong> atau <strong>6 orang</strong>. Jika kelompok berisi 6 orang, tugas <strong>Desainer Artwork Akhir & Mockup</strong> dikerjakan bersama oleh <strong>Anggota 5 dan Anggota 6</strong>.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Switch Button for 5 or 6 members -->
+                            <div class="bg-white/90 p-1.5 rounded-xl border border-cyan-200 flex items-center gap-1 shadow-sm shrink-0 self-stretch sm:self-auto justify-center">
+                                <span class="text-[11px] font-bold text-slate-500 px-2">Jumlah Anggota:</span>
+                                <button type="button" onclick="setTeamSize(5)" id="btn-team-size-5" class="px-3 py-1 rounded-lg text-xs font-extrabold transition bg-cyan-600 text-white shadow-sm">
+                                    5 Orang
+                                </button>
+                                <button type="button" onclick="setTeamSize(6)" id="btn-team-size-6" class="px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:bg-slate-100">
+                                    6 Orang
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Members Assignment Cards Grid -->
+                        <div class="space-y-4" id="members-task-container">
+                            <!-- Member 1 -->
+                            <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-cyan-400 transition-all space-y-3">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-lg bg-cyan-600 text-white text-xs font-black flex items-center justify-center">1</span>
+                                        <span class="font-bold text-slate-800 text-xs sm:text-sm">Anggota 1: Ketua & Lead Cultural Researcher</span>
+                                    </div>
+                                    <select id="member-status-1" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 outline-none">
+                                        <option value="Selesai">Status: Selesai</option>
+                                        <option value="Sedang Dikerjakan" selected>Status: Sedang Dikerjakan</option>
+                                        <option value="Belum Mulai">Status: Belum Mulai</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Siswa *</label>
+                                        <input type="text" id="member-name-1" placeholder="Nama Lengkap Anggota 1" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Peran Tim</label>
+                                        <input type="text" id="member-role-1" value="Ketua Tim & Riset Budaya Kota" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fokus Tugas</label>
+                                        <input type="text" id="member-task-1" value="Riset keunikan ikon kota, analisis target pasar, & koordinasi kelompok" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 2 -->
+                            <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-indigo-400 transition-all space-y-3">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white text-xs font-black flex items-center justify-center">2</span>
+                                        <span class="font-bold text-slate-800 text-xs sm:text-sm">Anggota 2: Design Brief & Material Specialist</span>
+                                    </div>
+                                    <select id="member-status-2" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 outline-none">
+                                        <option value="Selesai">Status: Selesai</option>
+                                        <option value="Sedang Dikerjakan" selected>Status: Sedang Dikerjakan</option>
+                                        <option value="Belum Mulai">Status: Belum Mulai</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Siswa *</label>
+                                        <input type="text" id="member-name-2" placeholder="Nama Lengkap Anggota 2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Peran Tim</label>
+                                        <input type="text" id="member-role-2" value="Spesialis Brief & Media Cetak" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fokus Tugas</label>
+                                        <input type="text" id="member-task-2" value="Menentukan jenis merchandise, kalkulasi ukuran cetak, & spesifikasi bahan" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 3 -->
+                            <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-purple-400 transition-all space-y-3">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-lg bg-purple-600 text-white text-xs font-black flex items-center justify-center">3</span>
+                                        <span class="font-bold text-slate-800 text-xs sm:text-sm">Anggota 3: Ilustrator & Konseptor Visual</span>
+                                    </div>
+                                    <select id="member-status-3" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 outline-none">
+                                        <option value="Selesai">Status: Selesai</option>
+                                        <option value="Sedang Dikerjakan" selected>Status: Sedang Dikerjakan</option>
+                                        <option value="Belum Mulai">Status: Belum Mulai</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Siswa *</label>
+                                        <input type="text" id="member-name-3" placeholder="Nama Lengkap Anggota 3" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Peran Tim</label>
+                                        <input type="text" id="member-role-3" value="Ilustrator Utama & Konsep Visual" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fokus Tugas</label>
+                                        <input type="text" id="member-task-3" value="Membuat sketsa kasar rancangan merchandise dan tata letak komposisi utama" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 4: Pre-Press & Quality Control -->
+                            <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-amber-400 transition-all space-y-3" id="member-card-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-lg bg-amber-600 text-white text-xs font-black flex items-center justify-center">4</span>
+                                        <span class="font-bold text-slate-800 text-xs sm:text-sm">Anggota 4: Spesialis Pra-Cetak (Pre-Press) & QC</span>
+                                    </div>
+                                    <select id="member-status-4" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 outline-none">
+                                        <option value="Selesai">Status: Selesai</option>
+                                        <option value="Sedang Dikerjakan" selected>Status: Sedang Dikerjakan</option>
+                                        <option value="Belum Mulai">Status: Belum Mulai</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Siswa *</label>
+                                        <input type="text" id="member-name-4" placeholder="Nama Lengkap Anggota 4" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Peran Tim</label>
+                                        <input type="text" id="member-role-4" value="Spesialis Pra-Cetak & QC Mesin" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fokus Tugas</label>
+                                        <input type="text" id="member-task-4" value="Verifikasi mode CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing cetak" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 5: Desainer Artwork Akhir & Mockup -->
+                            <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-emerald-400 transition-all space-y-3" id="member-card-5">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-xs font-black flex items-center justify-center">5</span>
+                                        <span class="font-bold text-slate-800 text-xs sm:text-sm" id="member-header-5">Anggota 5: Desainer Artwork Akhir & Mockup</span>
+                                        <span id="member-collab-badge-5" class="hidden text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200">Duet Artwork & Mockup (A)</span>
+                                    </div>
+                                    <select id="member-status-5" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 outline-none">
+                                        <option value="Selesai">Status: Selesai</option>
+                                        <option value="Sedang Dikerjakan" selected>Status: Sedang Dikerjakan</option>
+                                        <option value="Belum Mulai">Status: Belum Mulai</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Siswa *</label>
+                                        <input type="text" id="member-name-5" placeholder="Nama Lengkap Anggota 5" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Peran Tim</label>
+                                        <input type="text" id="member-role-5" value="Desainer Artwork Akhir & Mockup" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fokus Tugas</label>
+                                        <input type="text" id="member-task-5" value="Digital rendering vektor resolusi tinggi & membuat mockup 3D produk realistis" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member 6: Sama dengan Anggota 5 (Desainer Artwork Akhir & Mockup) -->
+                            <div class="hidden p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-emerald-400 transition-all space-y-3" id="member-card-6">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-xs font-black flex items-center justify-center">6</span>
+                                        <span class="font-bold text-slate-800 text-xs sm:text-sm">Anggota 6: Desainer Artwork Akhir & Mockup</span>
+                                        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200">Duet Artwork & Mockup (B - Sama dg Anggota 5)</span>
+                                    </div>
+                                    <select id="member-status-6" class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 outline-none">
+                                        <option value="Selesai">Status: Selesai</option>
+                                        <option value="Sedang Dikerjakan" selected>Status: Sedang Dikerjakan</option>
+                                        <option value="Belum Mulai">Status: Belum Mulai</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Siswa *</label>
+                                        <input type="text" id="member-name-6" placeholder="Nama Lengkap Anggota 6" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Peran Tim</label>
+                                        <input type="text" id="member-role-6" value="Desainer Artwork Akhir & Mockup" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Fokus Tugas</label>
+                                        <input type="text" id="member-task-6" value="Digital rendering vektor resolusi tinggi & membuat mockup 3D produk realistis" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step Action Footer Navigation -->
+                        <div class="pt-5 border-t border-slate-100 flex justify-between items-center">
+                            <button type="button" onclick="setActiveStep('overview')" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke Ringkasan
+                            </button>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="saveStudentProject()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-floppy-disk text-slate-400"></i> Simpan Draft
+                                </button>
+                                <button type="button" onclick="setActiveStep(1)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                    <span>Lanjut ke 01. Riset & Insight</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 1: RESEARCH & INSIGHT -->
+                    <div id="step-panel-1" class="step-panel hidden glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-5 text-xs text-blue-900 flex items-start gap-3.5">
+                            <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-blue-950 text-sm mb-1">Tahap 01: Riset & Eksplorasi Ikon Budaya Kota</h4>
+                                <p class="text-blue-800 leading-relaxed">
+                                    Lakukan riset mendalam mengenai keunikan ornamen visual, kearifan lokal, dan landmark khas dari kota pilihan Anda (<strong>Banyuwangi, Ponorogo, Malang, Surabaya, Madiun,</strong> atau <strong>Madura</strong>) yang akan diadaptasi ke dalam desain merchandise.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilihan Tema Kota *</label>
+                                <select id="input-city-theme" onchange="updateCityHelper()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-blue-800 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                                    <option value="BANYUWANGI">BANYUWANGI</option>
+                                    <option value="PONOROGO">PONOROGO</option>
+                                    <option value="MALANG">MALANG</option>
+                                    <option value="SURABAYA">SURABAYA</option>
+                                    <option value="MADIUN">MADIUN</option>
+                                    <option value="MADURA">MADURA</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Judul Proyek Merchandise *</label>
+                                <input type="text" id="input-title" placeholder="Contoh: Kaos Grafis 'The Majesty of Reog'" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Target Audiens Pembeli *</label>
+                                <input type="text" id="input-target-audience" placeholder="Contoh: Wisatawan mancanegara, anak muda kolektor merchandise pop-art" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Deskripsi Riset Ikon Kota & Alasan Pemilihan *</label>
+                            <textarea id="input-research-desc" rows="3" placeholder="Jelaskan elemen budaya kota yang diangkat (misal motif Batik Gajah Oling, ornamen singa Malangan, siluet pendekar Madiun), mengapa relevan, dan bagaimana nilai jualnya sebagai merchandise..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition leading-relaxed"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Unggah Gambar Moodboard / Referensi Ikon Kota (Dari Galeri)</label>
+                            <div class="border-2 border-dashed border-blue-200 hover:border-blue-500 rounded-2xl p-5 bg-blue-50/30 transition text-center cursor-pointer group" onclick="document.getElementById('file-moodboard').click()">
+                                <input type="file" id="file-moodboard" accept="image/*" class="hidden" onchange="handleGalleryUpload(this, 'preview-moodboard', 'moodboardUrl')">
+                                <div class="space-y-2">
+                                    <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 group-hover:bg-blue-600 group-hover:text-white text-blue-600 flex items-center justify-center text-xl transition">
+                                        <i class="fa-solid fa-images"></i>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-700">Klik untuk Buka Galeri HP / File Komputer</p>
+                                    <p class="text-[11px] text-slate-400">Mendukung format JPG, PNG, WEBP (Otomatis Dioptimasi)</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-center border border-slate-200 rounded-2xl p-3 bg-slate-50">
+                                <img id="preview-moodboard" src="https://placehold.co/600x300/f1f5f9/94a3b8?text=Preview+Moodboard+dari+Galeri" class="max-h-52 mx-auto rounded-xl object-contain shadow-sm" alt="Preview Moodboard">
+                            </div>
+                        </div>
+
+                        <div class="pt-5 border-t border-slate-100 flex justify-between items-center">
+                            <button type="button" onclick="setActiveStep('team')" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke Pembagian Tugas
+                            </button>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="saveStudentProject()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-floppy-disk text-slate-400"></i> Simpan Draft
+                                </button>
+                                <button type="button" onclick="setActiveStep(2)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                    <span>Lanjut ke 02. Design Brief</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: DESIGN BRIEF -->
+                    <div id="step-panel-2" class="step-panel hidden glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-6">
+                        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200/80 rounded-2xl p-5 text-xs text-indigo-900 flex items-start gap-3.5">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-indigo-950 text-sm mb-1">Tahap 02: Design Brief & Spesifikasi Merchandise</h4>
+                                <p class="text-indigo-800 leading-relaxed">
+                                    Tentukan jenis merchandise cetak yang dirancang (<strong>Tumbler, Kaos, Totebag, Gantungan Kunci, PIN,</strong> atau <strong>Stiker</strong>), ukuran area cetak, bahan media dasar, dan teknik cetak yang akan digunakan.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Merchandise Cetak *</label>
+                                <select id="input-media-type" onchange="autoFillMerchSpec()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                                    <option value="Tumbler">Tumbler</option>
+                                    <option value="Kaos">Kaos (T-Shirt)</option>
+                                    <option value="Totebag">Totebag</option>
+                                    <option value="Gantungan Kunci">Gantungan Kunci (Keychain)</option>
+                                    <option value="PIN">PIN Promosi / Bros</option>
+                                    <option value="Stiker">Stiker (Vinyl / Die-cut)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Ukuran / Area Bidang Cetak *</label>
+                                <input type="text" id="input-print-size" placeholder="Contoh: Sablon A3 (29.7 x 42 cm) / Diameter 58mm" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Bahan Media Cetak & Teknik</label>
+                                <input type="text" id="input-paper-material" placeholder="Contoh: Cotton Combed 30s + Cetak DTF / Stainless Steel UV Flatbed" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pesan Utama & Nilai Jual Merchandise (Selling Point)</label>
+                            <textarea id="input-brief-message" rows="3" placeholder="Tuliskan tagline atau pesan yang ingin ditonjolkan (misal: 'Pride of Banyuwangi: Gandrung Soul', 'Sangar Arema', dsb)..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition leading-relaxed"></textarea>
+                        </div>
+
+                        <div class="pt-5 border-t border-slate-100 flex justify-between items-center">
+                            <button type="button" onclick="setActiveStep(1)" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke 01. Riset Kota
+                            </button>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="saveStudentProject()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-floppy-disk text-slate-400"></i> Simpan Draft
+                                </button>
+                                <button type="button" onclick="setActiveStep(3)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                    <span>Lanjut ke 03. Eksplorasi Visual</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: EKSPLORASI VISUAL -->
+                    <div id="step-panel-3" class="step-panel hidden glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-6">
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 rounded-2xl p-5 text-xs text-purple-900 flex items-start gap-3.5">
+                            <div class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-palette"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-purple-950 text-sm mb-1">Tahap 03: Eksplorasi Elemen Visual</h4>
+                                <p class="text-purple-800 leading-relaxed">
+                                    Unggah sketsa kasar/grid layout awal Anda. Tentukan hirarki tipografi (Primary & Secondary Font), pilih palet warna utama (HEX Code), serta tentukan pendekatan gaya visual. (Jika kelompok berisi 6 orang, tugas visual ini merupakan kerja sama 2 orang siswa).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">Unggah Sketsa Awal / Layout Grid (Dari Galeri)</label>
+                                <div class="border-2 border-dashed border-purple-200 hover:border-purple-500 rounded-2xl p-5 bg-purple-50/30 transition text-center cursor-pointer group" onclick="document.getElementById('file-sketch').click()">
+                                    <input type="file" id="file-sketch" accept="image/*" class="hidden" onchange="handleGalleryUpload(this, 'preview-sketch', 'sketchUrl')">
+                                    <div class="space-y-2">
+                                        <div class="w-12 h-12 mx-auto rounded-full bg-purple-100 group-hover:bg-purple-600 group-hover:text-white text-purple-600 flex items-center justify-center text-xl transition">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        </div>
+                                        <p class="text-xs font-bold text-slate-700">Pilih Foto Sketsa dari Galeri / Kamera</p>
+                                        <p class="text-[11px] text-slate-400">Foto sketsa buku gambar atau tangkapan layar digital</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-center border border-slate-200 rounded-2xl p-3 bg-slate-50">
+                                    <img id="preview-sketch" src="https://placehold.co/600x300/f1f5f9/94a3b8?text=Preview+Foto+Sketsa" class="max-h-48 mx-auto rounded-xl object-contain shadow-sm" alt="Preview Sketsa">
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Tipografi Yang Digunakan</label>
+                                    <input type="text" id="input-typography" placeholder="Primary: Montserrat Bold, Secondary: Inter" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Palet Warna Utama (HEX)</label>
+                                    <div class="grid grid-cols-4 gap-2.5">
+                                        <input type="color" id="input-color-1" value="#1d4ed8" class="w-full h-10 p-1 bg-white border border-slate-200 rounded-xl cursor-pointer">
+                                        <input type="color" id="input-color-2" value="#0284c7" class="w-full h-10 p-1 bg-white border border-slate-200 rounded-xl cursor-pointer">
+                                        <input type="color" id="input-color-3" value="#f59e0b" class="w-full h-10 p-1 bg-white border border-slate-200 rounded-xl cursor-pointer">
+                                        <input type="color" id="input-color-4" value="#0f172a" class="w-full h-10 p-1 bg-white border border-slate-200 rounded-xl cursor-pointer">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Konsep Gaya Visual</label>
+                                    <input type="text" id="input-visual-style" placeholder="Minimalis Modern, Vintage, Playful, Elegance..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-5 border-t border-slate-100 flex justify-between items-center">
+                            <button type="button" onclick="setActiveStep(2)" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke 02. Brief
+                            </button>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="saveStudentProject()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-floppy-disk text-slate-400"></i> Simpan Draft
+                                </button>
+                                <button type="button" onclick="setActiveStep(4)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                    <span>Lanjut ke 04. Final Design</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: FINAL DESIGN & MOCKUP -->
+                    <div id="step-panel-4" class="step-panel hidden glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-6">
+                        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl p-5 text-xs text-emerald-900 flex items-start gap-3.5">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-emerald-950 text-sm mb-1">Tahap 04: Final Artwork & Mockup Presentasi</h4>
+                                <p class="text-emerald-800 leading-relaxed">
+                                    Sajikan visual produk akhir dalam bentuk 3D Mockup realistis. Sertakan pula penjelasan hasil karya serta URL link penyimpanan cloud untuk pengujian kualitas resolusi oleh guru.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Unggah Gambar Mockup Desain Akhir (Dari Galeri) *</label>
+                            <div class="border-2 border-dashed border-emerald-300 hover:border-emerald-600 rounded-2xl p-6 bg-emerald-50/40 transition text-center cursor-pointer group" onclick="document.getElementById('file-final').click()">
+                                <input type="file" id="file-final" accept="image/*" class="hidden" onchange="handleGalleryUpload(this, 'preview-final', 'finalImageUrl')">
+                                <div class="space-y-2">
+                                    <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 group-hover:bg-emerald-600 group-hover:text-white text-emerald-600 flex items-center justify-center text-2xl transition shadow-sm">
+                                        <i class="fa-solid fa-photo-film"></i>
+                                    </div>
+                                    <p class="text-xs font-extrabold text-slate-800">Klik untuk Memilih Mockup dari Galeri Foto</p>
+                                    <p class="text-[11px] text-slate-500">Pilih gambar mockup 3D (Kaos, Tumbler, Totebag, Pin, Gantungan Kunci, atau Stiker)</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-center border border-slate-200 rounded-2xl p-4 bg-slate-50">
+                                <img id="preview-final" src="https://placehold.co/800x450/f1f5f9/94a3b8?text=Preview+Mockup+dari+Galeri" class="max-h-72 mx-auto rounded-xl object-contain shadow-md" alt="Preview Final Mockup">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Penjelasan Karya Desain Akhir</label>
+                            <textarea id="input-final-desc" rows="3" placeholder="Jelaskan alasan eksekusi karya akhir, kesesuaian dengan brief, dan keunggulan visual karya..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition leading-relaxed"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Link Eksternal Drive / File PDF High-Res</label>
+                            <input type="url" id="input-drive-link" placeholder="https://drive.google.com/file/d/..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+
+                        <div class="pt-5 border-t border-slate-100 flex justify-between items-center">
+                            <button type="button" onclick="setActiveStep(3)" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke 03. Visual
+                            </button>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="saveStudentProject()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-floppy-disk text-slate-400"></i> Simpan Draft
+                                </button>
+                                <button type="button" onclick="setActiveStep(5)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                    <span>Lanjut ke 05. Pre-Press</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5: PRE-PRESS & FINISHING -->
+                    <div id="step-panel-5" class="step-panel hidden glass-card p-6 sm:p-8 rounded-3xl border border-white/50 shadow-xl space-y-6">
+                        <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-5 text-xs text-amber-900 flex items-start gap-3.5">
+                            <div class="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-amber-950 text-sm mb-1">Tahap 05: Pra-Cetak (Pre-Press) & Finishing Teknologis</h4>
+                                <p class="text-amber-800 leading-relaxed">
+                                    Periksa kembali kesiapan teknis file sebelum dicetak langsung di mesin offset / digital print. Pastikan standar industri (CMYK, 300 DPI, Bleed 3mm, Font Outlines) telah terpenuhi.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs">
+                            <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200/80 shadow-sm cursor-pointer hover:border-blue-400 transition">
+                                <input type="checkbox" id="check-cmyk" class="w-4 h-4 text-blue-600 rounded">
+                                <span class="font-bold text-slate-700">Mode Warna CMYK (Bukan RGB)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200/80 shadow-sm cursor-pointer hover:border-blue-400 transition">
+                                <input type="checkbox" id="check-dpi" class="w-4 h-4 text-blue-600 rounded">
+                                <span class="font-bold text-slate-700">Resolusi Minimum 300 DPI</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200/80 shadow-sm cursor-pointer hover:border-blue-400 transition">
+                                <input type="checkbox" id="check-bleed" class="w-4 h-4 text-blue-600 rounded">
+                                <span class="font-bold text-slate-700">Bleed Minimum 3mm & Safety Margin</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200/80 shadow-sm cursor-pointer hover:border-blue-400 transition">
+                                <input type="checkbox" id="check-outline" class="w-4 h-4 text-blue-600 rounded">
+                                <span class="font-bold text-slate-700">Teks / Font Sudah Convert Outlines</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Rencana Finishing Cetak Tambahan</label>
+                            <input type="text" id="input-finishing" placeholder="Contoh: Laminasi Doff + Spot UV pada Logo, Die-Cut Pond, Hot Stamping Foil" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        </div>
+
+                        <div class="pt-5 border-t border-slate-100 flex justify-between items-center">
+                            <button type="button" onclick="setActiveStep(4)" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke 04. Final
+                            </button>
+                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-7 py-3 rounded-xl text-xs font-extrabold shadow-lg shadow-blue-600/30 transition flex items-center gap-2 active:scale-95">
+                                <i class="fa-solid fa-paper-plane"></i> Simpan & Kirim ke Guru Evaluator
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= 3. TEACHER DASHBOARD VIEW ================= -->
+        <section id="view-teacher" class="hidden space-y-6">
+            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <span class="bg-indigo-500/30 text-indigo-300 text-xs px-3 py-1 rounded-full font-semibold mb-2 inline-block">
+                        <i class="fa-solid fa-user-check mr-1"></i> Mode Penilaian Guru
+                    </span>
+                    <h2 class="text-2xl font-bold">Dashboard Evaluasi Tugas Siswa</h2>
+                    <p class="text-xs text-slate-400 mt-1">Review karya, berikan revisi, dan publikasikan hasil karya siswa ke galeri umum.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-center">
+                        <span id="metric-total" class="block font-extrabold text-lg text-blue-400">0</span>
+                        <span class="text-[10px] text-slate-400 uppercase">Total Tugas</span>
+                    </div>
+                    <div class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-center">
+                        <span id="metric-pending" class="block font-extrabold text-lg text-amber-400">0</span>
+                        <span class="text-[10px] text-slate-400 uppercase">Perlu Evaluasi</span>
+                    </div>
+                    <div class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-center">
+                        <span id="metric-approved" class="block font-extrabold text-lg text-emerald-400">0</span>
+                        <span class="text-[10px] text-slate-400 uppercase">Lulus Galeri</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Class / Status for Teacher -->
+            <div class="glass-card p-4 rounded-2xl shadow-xl border border-white/40 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <label class="text-xs font-bold text-slate-600">Filter Kelas:</label>
+                    <select id="teacher-filter-class" onchange="renderTeacherList()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold outline-none">
+                        <option value="all">Semua Kelas</option>
+                        <option value="XI DKV 1">XI DKV 1</option>
+                        <option value="XI DKV 2">XI DKV 2</option>
+                        <option value="XII DKV 1">XII DKV 1</option>
+                    </select>
+
+                    <label class="text-xs font-bold text-slate-600 ml-2">Status:</label>
+                    <select id="teacher-filter-status" onchange="renderTeacherList()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold outline-none">
+                        <option value="all">Semua Status</option>
+                        <option value="Proses">Dalam Proses / Menunggu</option>
+                        <option value="Revisi">Perlu Revisi</option>
+                        <option value="Selesai">Disetujui / Selesai</option>
+                    </select>
+                </div>
+
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="teacher-search" oninput="renderTeacherList()" placeholder="Cari kelompok / karya..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
+                </div>
+            </div>
+
+            <!-- Teacher Project Table/Card Grid -->
+            <div class="glass-card rounded-2xl border border-white/40 shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="p-4">Kelompok & Kelas</th>
+                                <th class="p-4">Jumlah Anggota</th>
+                                <th class="p-4">Judul Proyek</th>
+                                <th class="p-4">Jenis Media</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Nilai</th>
+                                <th class="p-4 text-right">Aksi Penilaian</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-project-table-body" class="divide-y divide-slate-100 text-xs">
+                            <!-- Rows injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- LOGIN / ROLE MODAL -->
+    <div id="modal-auth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-200">
+            <div class="flex border-b border-slate-100 bg-slate-50">
+                <button onclick="switchAuthTab('siswa')" id="auth-tab-siswa" class="flex-1 py-3.5 text-xs font-bold text-center border-b-2 border-blue-600 text-blue-600">
+                    <i class="fa-solid fa-user-graduate mr-1"></i> Login Siswa
+                </button>
+                <button onclick="switchAuthTab('guru')" id="auth-tab-guru" class="flex-1 py-3.5 text-xs font-bold text-center text-slate-500 border-b-2 border-transparent">
+                    <i class="fa-solid fa-user-tie mr-1"></i> Login Guru
+                </button>
+            </div>
+
+            <div class="p-6">
+                <!-- FORM LOGIN SISWA -->
+                <form id="form-login-siswa" onsubmit="handleSiswaLogin(event)" class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kelompok *</label>
+                        <input type="text" id="login-group-name" placeholder="Contoh: Kelompok Alpha / Studio 01" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kelas *</label>
+                            <select id="login-class" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="XI DKV 1">XI DKV 1</option>
+                                <option value="XI DKV 2">XI DKV 2</option>
+                                <option value="XII DKV 1">XII DKV 1</option>
+                                <option value="XII DKV 2">XII DKV 2</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Anggota *</label>
+                            <select id="login-team-size-select" onchange="toggleLoginMemberCount(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="5" selected>5 Orang</option>
+                                <option value="6">6 Orang</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700">Daftar Anggota Kelompok *</label>
+                        <div class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                            <input type="text" id="login-member-1" placeholder="1. Ketua (Riset & Budaya)" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="login-member-2" placeholder="2. Spesialis Brief & Media" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="login-member-3" placeholder="3. Ilustrator & Konsep Visual" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="login-member-4" placeholder="4. Spesialis Pra-Cetak (Pre-Press & QC)" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="login-member-5" placeholder="5. Desainer Final Artwork & Mockup" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <div id="login-member-6-container" class="hidden">
+                                <input type="text" id="login-member-6" placeholder="6. Desainer Final Artwork & Mockup (Sama dg Anggota 5)" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition">
+                        Masuk Lembar Kerja Siswa
+                    </button>
+                </form>
+
+                <!-- FORM LOGIN GURU -->
+                <form id="form-login-guru" onsubmit="handleGuruLogin(event)" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Guru / Penguji *</label>
+                        <input type="text" id="login-teacher-name" placeholder="Contoh: Pak Budi Santoso, S.Sn." required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kata Sandi Guru *</label>
+                        <input type="password" id="login-teacher-pass" placeholder="Sandi default: guru123" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-[10px] text-slate-400 mt-1">Gunakan kata sandi: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-600 font-bold">guru123</code></p>
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition">
+                        Masuk Dashboard Guru
+                    </button>
+                </form>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+                    <button onclick="closeModal('modal-auth')" class="text-slate-400 hover:text-slate-600">Batal / Tutup</button>
+                    <button onclick="guestMode()" class="text-blue-600 font-semibold hover:underline">Masuk Mode Tamu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EVALUATOR / GRADING MODAL FOR TEACHER -->
+    <div id="modal-eval" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-blue-400 text-lg"></i>
+                    <h3 class="font-bold text-sm">Evaluasi Karya & Alur Desain Siswa</h3>
+                </div>
+                <button onclick="closeModal('modal-eval')" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto" id="eval-content-body"></div>
+        </div>
+    </div>
+
+    <!-- DETAIL SHOWCASE MODAL FOR PUBLIC GALLERY -->
+    <div id="modal-detail" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-slate-100 my-8">
+            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-blue-400"></i>
+                    <h3 class="font-bold text-sm" id="detail-modal-header-title">Detail Karya Siswa</h3>
+                </div>
+                <button onclick="closeModal('modal-detail')" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto" id="detail-modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let activeProject = null;
+        let selectedCityFilter = 'all';
+        let selectedMerchFilter = 'all';
+        let currentStep = 'overview';
+
+        // Function to upload and apply custom wallpaper from device
+        function uploadCustomBackground(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Resize to fit screen well without exceeding localStorage quota
+                    const MAX_WIDTH = 1920;
+                    const MAX_HEIGHT = 1080;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedBg = canvas.toDataURL('image/jpeg', 0.85);
+
+                    // Apply directly
+                    applyBackgroundURL(compressedBg);
+
+                    // Persist to localStorage
+                    try {
+                        localStorage.setItem('studio_design_custom_bg', compressedBg);
+                    } catch (err) {
+                        console.warn('Storage quota full, background applied in-session', err);
+                    }
+
+                    showToast('Foto latar belakang pop-art berhasil dipasang & disimpan!', 'success');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyBackgroundURL(url) {
+            document.documentElement.style.setProperty('--app-bg-image', `url('${url}')`);
+            const bgLayer = document.getElementById('app-bg-layer');
+            if (bgLayer) {
+                bgLayer.style.backgroundImage = `url('${url}')`;
+            }
+        }
+
+        // Initialize background on start
+        function initAppBackground() {
+            try {
+                const savedBg = localStorage.getItem('studio_design_custom_bg');
+                if (savedBg) {
+                    applyBackgroundURL(savedBg);
+                } else {
+                    // Try local file first, fallback to street-art web image
+                    const testImg = new Image();
+                    testImg.onload = function() {
+                        applyBackgroundURL('WhatsApp Image 2026-10-02 at 11.59.43.jpeg');
+                    };
+                    testImg.onerror = function() {
+                        applyBackgroundURL('https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1920&q=80');
+                    };
+                    testImg.src = 'WhatsApp Image 2026-10-02 at 11.59.43.jpeg';
+                }
+            } catch (e) {
+                applyBackgroundURL('https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1920&q=80');
+            }
+        }
+
+        // REAL PRODUCTION STATE: Database dimulai dalam kondisi bersih tanpa data bot/dummy
+        let projectsData = [];
+
+        function toggleLoginMemberCount(count) {
+            const container6 = document.getElementById('login-member-6-container');
+            const member4 = document.getElementById('login-member-4');
+            const member5 = document.getElementById('login-member-5');
+
+            if (parseInt(count, 10) === 6) {
+                if (container6) container6.classList.remove('hidden');
+                if (member4) member4.placeholder = '4. Spesialis Pra-Cetak (Pre-Press & QC)';
+                if (member5) member5.placeholder = '5. Desainer Final Artwork & Mockup (Partner A)';
+            } else {
+                if (container6) container6.classList.add('hidden');
+                if (member4) member4.placeholder = '4. Spesialis Pra-Cetak (Pre-Press & QC)';
+                if (member5) member5.placeholder = '5. Desainer Final Artwork & Mockup';
+            }
+        }
+
+        function applyTeamSizeUI(size) {
+            const btn5 = document.getElementById('btn-team-size-5');
+            const btn6 = document.getElementById('btn-team-size-6');
+            const card6 = document.getElementById('member-card-6');
+            const badgeCollab5 = document.getElementById('member-collab-badge-5');
+            const countDisplay = document.getElementById('student-team-count-display');
+            const summaryTitle = document.getElementById('dash-summary-team-title');
+            const summaryFooter = document.getElementById('dash-summary-team-footer');
+
+            if (countDisplay) countDisplay.innerText = `${size} Anggota`;
+            if (summaryTitle) summaryTitle.innerText = `Pembagian Tugas (${size} Anggota)`;
+            if (summaryFooter) summaryFooter.innerText = `${size} Peran Spesialisasi Cetak`;
+
+            if (size === 6) {
+                if (btn6) btn6.className = "px-3 py-1 rounded-lg text-xs font-extrabold transition bg-cyan-600 text-white shadow-sm";
+                if (btn5) btn5.className = "px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:bg-slate-100";
+                if (card6) card6.classList.remove('hidden');
+                if (badgeCollab5) badgeCollab5.classList.remove('hidden');
+            } else {
+                if (btn5) btn5.className = "px-3 py-1 rounded-lg text-xs font-extrabold transition bg-cyan-600 text-white shadow-sm";
+                if (btn6) btn6.className = "px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:bg-slate-100";
+                if (card6) card6.classList.add('hidden');
+                if (badgeCollab5) badgeCollab5.classList.add('hidden');
+            }
+        }
+
+        function setTeamSize(size) {
+            if (!activeProject) return;
+            activeProject.teamSize = size;
+            applyTeamSizeUI(size);
+            updateDashboardSummaries();
+            showToast(`Jumlah anggota kelompok disesuaikan menjadi ${size} orang.`, 'info');
+        }
+
+        function autoFillMerchSpec() {
+            const m = document.getElementById('input-media-type').value;
+            const sizeInput = document.getElementById('input-print-size');
+            const matInput = document.getElementById('input-paper-material');
+
+            const templates = {
+                'Tumbler': { size: 'Keliling 360 Derajat (18 x 23 cm)', mat: 'Stainless Steel Double Wall + Cetak UV Flatbed Rotary' },
+                'Kaos': { size: 'Area Cetak A3 Depan (30 x 42 cm)', mat: 'Cotton Combed 30s / 24s + Sablon DTF High-Res' },
+                'Totebag': { size: 'Area Sablon 28 x 35 cm (Tas 35x40 cm)', mat: 'Kanvas Marsoto Tebal + Sablon Plastisol / Sublimasi' },
+                'Gantungan Kunci': { size: 'Dimensi 6 x 6 cm (Double Side)', mat: 'Akrilik Bening 3mm Laser Cutting + Epoksi UV' },
+                'PIN': { size: 'Diameter Standar 58 mm / 44 mm', mat: 'Plat Seng Tinplate + Kertas Art Paper 150g Laminasi Doff' },
+                'Stiker': { size: 'Sheet A5 (14.8 x 21 cm) Kiss-Cut', mat: 'Vinyl White Waterproof + Laminasi Dingin Glossy' }
+            };
+
+            if (templates[m]) {
+                if (!sizeInput.value || sizeInput.value.includes('(')) sizeInput.value = templates[m].size;
+                if (!matInput.value || matInput.value.includes('+')) matInput.value = templates[m].mat;
+            }
+        }
+
+        function updateCityHelper() {
+            const city = document.getElementById('input-city-theme').value;
+            const titleInput = document.getElementById('input-title');
+            const cityDisplay = document.getElementById('student-city-display');
+            
+            if (cityDisplay) {
+                cityDisplay.innerText = city ? city : 'Belum Dipilih';
+            }
+            if (activeProject) {
+                activeProject.cityTheme = city;
+            }
+            if (city && (!titleInput.value || titleInput.value.startsWith('Merchandise Ikonik Kota'))) {
+                titleInput.value = `Merchandise Ikonik Kota ${city}`;
+            }
+            updateDashboardSummaries();
+        }
+
+        function filterCity(city) {
+            selectedCityFilter = city;
+            const btns = document.querySelectorAll('.city-filter-btn');
+            btns.forEach(btn => {
+                if ((city === 'all' && btn.innerText.includes('Semua')) || btn.innerText.toLowerCase().trim() === city.toLowerCase().trim()) {
+                    btn.className = "city-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-blue-600 text-white shadow-sm whitespace-nowrap";
+                } else {
+                    btn.className = "city-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap";
+                }
+            });
+            renderGallery();
+        }
+
+        function filterMerch(merch) {
+            selectedMerchFilter = merch;
+            const btns = document.querySelectorAll('.merch-filter-btn');
+            btns.forEach(btn => {
+                if ((merch === 'all' && btn.innerText.includes('Semua')) || btn.innerText.toLowerCase().trim() === merch.toLowerCase().trim()) {
+                    btn.className = "merch-filter-btn text-xs font-bold px-3 py-1 rounded-lg bg-blue-100 text-blue-800 transition";
+                } else {
+                    btn.className = "merch-filter-btn text-xs font-medium px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition";
+                }
+            });
+            renderGallery();
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('gallery-grid');
+            const searchVal = document.getElementById('gallery-search').value.toLowerCase();
+
+            let list = projectsData.filter(p => {
+                const isFinished = p.status === 'Selesai';
+                const matchCity = selectedCityFilter === 'all' || (p.cityTheme && p.cityTheme.toLowerCase() === selectedCityFilter.toLowerCase());
+                const matchMerch = selectedMerchFilter === 'all' || (p.mediaType && p.mediaType.toLowerCase() === selectedMerchFilter.toLowerCase());
+                const matchSearch = p.groupName.toLowerCase().includes(searchVal) || 
+                                    p.title.toLowerCase().includes(searchVal) || 
+                                    (p.cityTheme && p.cityTheme.toLowerCase().includes(searchVal)) ||
+                                    (p.mediaType && p.mediaType.toLowerCase().includes(searchVal));
+
+                return isFinished && matchCity && matchMerch && matchSearch;
+            });
+
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-slate-200">
+                        <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-3 block"></i>
+                        <p class="font-bold text-slate-700 text-sm">Belum ada karya merchandise untuk kombinasi filter ini.</p>
+                        <p class="text-xs text-slate-400 mt-1">Pilih filter Kota atau jenis Merchandise lain untuk melihat hasil.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const cityColors = {
+                'BANYUWANGI': 'bg-emerald-600',
+                'PONOROGO': 'bg-purple-600',
+                'MALANG': 'bg-blue-600',
+                'SURABAYA': 'bg-red-600',
+                'MADIUN': 'bg-amber-600',
+                'MADURA': 'bg-rose-700'
+            };
+
+            grid.innerHTML = list.map(p => `
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+                    <div class="relative h-56 bg-slate-100 overflow-hidden">
+                        <img src="${p.finalImageUrl || 'https://placehold.co/600x400'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="${p.title}">
+                        <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                            <span class="${cityColors[p.cityTheme] || 'bg-slate-900'} text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+                                <i class="fa-solid fa-location-dot mr-1"></i>${p.cityTheme || 'JAWA TIMUR'}
+                            </span>
+                            <span class="bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700">
+                                ${p.mediaType}
+                            </span>
+                        </div>
+                        <div class="absolute top-3 right-3 bg-slate-900/70 backdrop-blur-md text-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                            <i class="fa-solid fa-users mr-1"></i>${p.teamSize || 5} Siswa
+                        </div>
+                        ${p.score ? `
+                            <div class="absolute bottom-3 right-3 bg-emerald-600 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                                <i class="fa-solid fa-star text-amber-300 text-[10px]"></i> ${p.score} / 100
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-400 mb-0.5"><i class="fa-solid fa-graduation-cap mr-1"></i>${p.className}</div>
+                            <h3 class="font-black text-lg sm:text-xl leading-snug line-clamp-2 bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-pink-600 transition-all duration-300">
+                                ${p.title}
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-users text-slate-400"></i> ${p.groupName}
+                            </p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span class="truncate max-w-[170px] text-[11px]"><i class="fa-solid fa-scroll mr-1"></i>${p.paperMaterial || 'Bahan Standar'}</span>
+                            <button onclick="viewProjectDetail('${p.id}')" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                Lihat Mockup <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadStudentForm() {
+            if (!activeProject) return;
+
+            const tSize = activeProject.teamSize || 5;
+            applyTeamSizeUI(tSize);
+
+            document.getElementById('student-project-title-heading').innerText = activeProject.title || 'Judul Proyek Desain Merchandise';
+            document.getElementById('student-group-name-display').innerText = activeProject.groupName;
+            document.getElementById('student-class-display').innerText = activeProject.className;
+            document.getElementById('student-city-display').innerText = activeProject.cityTheme ? activeProject.cityTheme : 'Belum Dipilih';
+            document.getElementById('student-merch-display').innerText = activeProject.mediaType || 'Kaos';
+
+            if (!activeProject.teamMembers || !Array.isArray(activeProject.teamMembers) || activeProject.teamMembers.length < 5) {
+                const names = (activeProject.members || '').split(',').map(s => s.trim());
+                activeProject.teamMembers = [
+                    { name: names[0] || 'Anggota 1', role: 'Ketua Tim & Riset Budaya Kota', task: 'Riset keunikan ikon budaya kota & koordinasi kelompok', status: 'Sedang Dikerjakan' },
+                    { name: names[1] || 'Anggota 2', role: 'Spesialis Brief & Media Cetak', task: 'Menentukan spesifikasi merchandise, bahan media, & teknik cetak', status: 'Sedang Dikerjakan' },
+                    { name: names[2] || 'Anggota 3', role: 'Ilustrator Utama & Konsep Visual', task: 'Membuat sketsa rancangan merchandise dan tata letak komposisi utama', status: 'Sedang Dikerjakan' },
+                    { name: names[3] || 'Anggota 4', role: tSize === 6 ? 'Digital Inking & Aset Visual' : 'Desainer Artwork Akhir & Mockup', task: tSize === 6 ? 'Digital inking, tipografi, & palet warna HEX' : 'Digital artwork vektor resolusi tinggi & render 3D mockup produk', status: 'Sedang Dikerjakan' },
+                    { name: names[4] || 'Anggota 5', role: tSize === 6 ? 'Desainer Artwork Akhir & Mockup' : 'Spesialis Pra-Cetak & QC Mesin', task: tSize === 6 ? 'Digital artwork vektor resolusi tinggi & render 3D mockup produk' : 'Verifikasi CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing khusus', status: 'Sedang Dikerjakan' },
+                    { name: names[5] || 'Anggota 6', role: 'Spesialis Pra-Cetak & Finishing Mesin', task: 'Verifikasi CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing khusus', status: 'Sedang Dikerjakan' }
+                ];
+            }
+
+            for (let i = 1; i <= 6; i++) {
+                const tm = activeProject.teamMembers[i - 1] || {};
+                const nameEl = document.getElementById(`member-name-${i}`);
+                const roleEl = document.getElementById(`member-role-${i}`);
+                const taskEl = document.getElementById(`member-task-${i}`);
+                const statusEl = document.getElementById(`member-status-${i}`);
+
+                if (nameEl) nameEl.value = tm.name || '';
+                if (roleEl && tm.role) roleEl.value = tm.role;
+                if (taskEl && tm.task) taskEl.value = tm.task;
+                if (statusEl) statusEl.value = tm.status || 'Sedang Dikerjakan';
+            }
+
+            updateDashboardSummaries();
+
+            // Status Badge
+            const badge = document.getElementById('student-status-badge');
+            if (activeProject.status === 'Selesai') {
+                badge.className = "px-3 py-2 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
+                badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Disetujui (Nilai: ${activeProject.score || '-'})`;
+            } else if (activeProject.status === 'Revisi') {
+                badge.className = "px-3 py-2 rounded-xl text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Perlu Revisi Guru`;
+            } else {
+                badge.className = "px-3 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200";
+                badge.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Menunggu / Draft Proses`;
+            }
+
+            // Feedback Display
+            const fbBox = document.getElementById('student-feedback-box');
+            if (activeProject.feedback) {
+                fbBox.classList.remove('hidden');
+                document.getElementById('student-feedback-text').innerText = `"${activeProject.feedback}"`;
+            } else {
+                fbBox.classList.add('hidden');
+            }
+
+            // Fill inputs
+            document.getElementById('input-city-theme').value = activeProject.cityTheme || '';
+            document.getElementById('input-title').value = activeProject.title || '';
+            document.getElementById('input-target-audience').value = activeProject.targetAudience || '';
+            document.getElementById('input-research-desc').value = activeProject.researchDesc || '';
+            
+            document.getElementById('preview-moodboard').src = activeProject.moodboardUrl || 'https://placehold.co/600x300/f1f5f9/94a3b8?text=Belum+Ada+Gambar+Moodboard';
+
+            document.getElementById('input-media-type').value = activeProject.mediaType || 'Tumbler';
+            document.getElementById('input-print-size').value = activeProject.printSize || '';
+            document.getElementById('input-paper-material').value = activeProject.paperMaterial || '';
+            document.getElementById('input-brief-message').value = activeProject.briefMessage || '';
+
+            document.getElementById('preview-sketch').src = activeProject.sketchUrl || 'https://placehold.co/600x300/f1f5f9/94a3b8?text=Belum+Ada+Foto+Sketsa';
+            document.getElementById('input-typography').value = activeProject.typography || '';
+            if (activeProject.colors && activeProject.colors.length >= 4) {
+                document.getElementById('input-color-1').value = activeProject.colors[0];
+                document.getElementById('input-color-2').value = activeProject.colors[1];
+                document.getElementById('input-color-3').value = activeProject.colors[2];
+                document.getElementById('input-color-4').value = activeProject.colors[3];
+            }
+            document.getElementById('input-visual-style').value = activeProject.visualStyle || '';
+
+            document.getElementById('preview-final').src = activeProject.finalImageUrl || 'https://placehold.co/800x450/f1f5f9/94a3b8?text=Belum+Ada+Mockup+Final';
+            document.getElementById('input-final-desc').value = activeProject.finalDesc || '';
+            document.getElementById('input-drive-link').value = activeProject.driveLink || '';
+
+            if (activeProject.prepress) {
+                document.getElementById('check-cmyk').checked = !!activeProject.prepress.cmyk;
+                document.getElementById('check-dpi').checked = !!activeProject.prepress.dpi;
+                document.getElementById('check-bleed').checked = !!activeProject.prepress.bleed;
+                document.getElementById('check-outline').checked = !!activeProject.prepress.outline;
+            }
+            document.getElementById('input-finishing').value = activeProject.finishing || '';
+
+            setActiveStep('overview');
+        }
+
+        function saveStudentProject() {
+            if (!activeProject) return;
+
+            const tSize = activeProject.teamSize || 5;
+            activeProject.teamMembers = [];
+            const savedNames = [];
+
+            for (let i = 1; i <= tSize; i++) {
+                const nameVal = document.getElementById(`member-name-${i}`)?.value.trim() || `Anggota ${i}`;
+                const roleVal = document.getElementById(`member-role-${i}`)?.value.trim() || `Peran ${i}`;
+                const taskVal = document.getElementById(`member-task-${i}`)?.value.trim() || `Tugas ${i}`;
+                const statusVal = document.getElementById(`member-status-${i}`)?.value || 'Sedang Dikerjakan';
+                
+                activeProject.teamMembers.push({
+                    name: nameVal,
+                    role: roleVal,
+                    task: taskVal,
+                    status: statusVal
+                });
+                savedNames.push(nameVal);
+            }
+            activeProject.members = savedNames.join(', ');
+
+            activeProject.cityTheme = document.getElementById('input-city-theme').value;
+            activeProject.title = document.getElementById('input-title').value.trim() || activeProject.title;
+            activeProject.targetAudience = document.getElementById('input-target-audience').value.trim();
+            activeProject.researchDesc = document.getElementById('input-research-desc').value.trim();
+
+            activeProject.mediaType = document.getElementById('input-media-type').value;
+            activeProject.printSize = document.getElementById('input-print-size').value.trim();
+            activeProject.paperMaterial = document.getElementById('input-paper-material').value.trim();
+            activeProject.briefMessage = document.getElementById('input-brief-message').value.trim();
+
+            activeProject.typography = document.getElementById('input-typography').value.trim();
+            activeProject.colors = [
+                document.getElementById('input-color-1').value,
+                document.getElementById('input-color-2').value,
+                document.getElementById('input-color-3').value,
+                document.getElementById('input-color-4').value
+            ];
+            activeProject.visualStyle = document.getElementById('input-visual-style').value.trim();
+
+            if (!activeProject.finalImageUrl) {
+                activeProject.finalImageUrl = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80';
+            }
+            activeProject.finalDesc = document.getElementById('input-final-desc').value.trim();
+            activeProject.driveLink = document.getElementById('input-drive-link').value.trim();
+
+            activeProject.prepress = {
+                cmyk: document.getElementById('check-cmyk').checked,
+                dpi: document.getElementById('check-dpi').checked,
+                bleed: document.getElementById('check-bleed').checked,
+                outline: document.getElementById('check-outline').checked
+            };
+            activeProject.finishing = document.getElementById('input-finishing').value.trim();
+
+            if (activeProject.status !== 'Selesai') {
+                activeProject.status = 'Proses';
+            }
+
+            saveProjectsToStorage();
+            loadStudentForm();
+            showToast('Tugas Merchandise Berhasil Disimpan!', 'success');
+        }
+
+        function renderTeacherList() {
+            const tbody = document.getElementById('teacher-project-table-body');
+            const classFilter = document.getElementById('teacher-filter-class').value;
+            const statusFilter = document.getElementById('teacher-filter-status').value;
+            const searchVal = document.getElementById('teacher-search').value.toLowerCase();
+
+            let filtered = projectsData.filter(p => {
+                const matchClass = classFilter === 'all' || p.className === classFilter;
+                const matchStatus = statusFilter === 'all' || p.status === statusFilter;
+                const matchSearch = p.groupName.toLowerCase().includes(searchVal) || 
+                                    p.title.toLowerCase().includes(searchVal) || 
+                                    (p.cityTheme && p.cityTheme.toLowerCase().includes(searchVal));
+
+                return matchClass && matchStatus && matchSearch;
+            });
+
+            document.getElementById('metric-total').innerText = projectsData.length;
+            document.getElementById('metric-pending').innerText = projectsData.filter(p => p.status === 'Proses' || p.status === 'Revisi').length;
+            document.getElementById('metric-approved').innerText = projectsData.filter(p => p.status === 'Selesai').length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-400">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>
+                            Tidak ada tugas merchandise yang cocok dengan filter.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => {
+                let statusTag = '';
+                if (p.status === 'Selesai') {
+                    statusTag = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Disetujui / Selesai</span>';
+                } else if (p.status === 'Revisi') {
+                    statusTag = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Perlu Revisi</span>';
+                } else {
+                    statusTag = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Dalam Proses</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-4">
+                            <div class="font-bold text-slate-900">${p.groupName}</div>
+                            <div class="text-[10px] text-slate-400"><i class="fa-solid fa-graduation-cap mr-1"></i>${p.className}</div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold ${p.teamSize === 6 ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-cyan-50 text-cyan-700 border border-cyan-200'}">
+                                <i class="fa-solid fa-user-group mr-1"></i>${p.teamSize || 5} Siswa
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-semibold text-slate-800 max-w-xs truncate">${p.title}</div>
+                            <span class="inline-block mt-0.5 text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+                                <i class="fa-solid fa-location-dot mr-1"></i>${p.cityTheme || 'KOTA'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-slate-600"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[11px] font-bold border border-blue-100">${p.mediaType}</span></td>
+                        <td class="p-4">${statusTag}</td>
+                        <td class="p-4 font-extrabold text-slate-900">${p.score !== null ? p.score : '-'}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="inspectProject('${p.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm inline-flex items-center gap-1">
+                                <i class="fa-solid fa-magnifying-glass"></i> Evaluasi & Nilai
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewProjectDetail(projId) {
+            const p = projectsData.find(item => item.id === projId);
+            if (!p) return;
+
+            document.getElementById('detail-modal-header-title').innerText = `${p.groupName} - Merchandise ${p.cityTheme || ''} (${p.teamSize || 5} Siswa)`;
+            const body = document.getElementById('detail-modal-body');
+
+            const colorBadges = (p.colors || []).map(c => `<span class="w-6 h-6 rounded-full inline-block border border-slate-300 shadow-sm" style="background-color: ${c}"></span>`).join(' ');
+
+            const teamHtml = (p.teamMembers || []).map((m, idx) => `
+                <div class="p-3 bg-white rounded-xl border border-slate-200/80 shadow-sm space-y-1">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-cyan-100 text-cyan-700 text-[10px] font-black flex items-center justify-center">${idx + 1}</span>
+                            ${m.name}
+                        </span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${m.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${m.status || 'Dikerjakan'}
+                        </span>
+                    </div>
+                    <p class="text-[11px] font-semibold text-cyan-800">${m.role}</p>
+                    <p class="text-[11px] text-slate-500 leading-snug">${m.task}</p>
+                </div>
+            `).join('');
+
+            body.innerHTML = `
+                <div class="space-y-6">
+                    <div class="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md">
+                        <img src="${p.finalImageUrl}" class="w-full max-h-80 object-cover" alt="Mockup Final">
+                        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 to-transparent p-5 text-white">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[11px] font-black bg-rose-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                    <i class="fa-solid fa-location-dot mr-1"></i>Tema: ${p.cityTheme || 'Jawa Timur'}
+                                </span>
+                                <span class="text-[11px] font-bold bg-blue-600 text-white px-2.5 py-0.5 rounded-full">
+                                    ${p.mediaType}
+                                </span>
+                                <span class="text-[11px] font-bold bg-purple-600 text-white px-2.5 py-0.5 rounded-full">
+                                    <i class="fa-solid fa-users mr-1"></i>${p.teamSize || 5} Anggota
+                                </span>
+                            </div>
+                            <h3 class="text-2xl font-black">${p.title}</h3>
+                            <p class="text-xs text-slate-300 mt-0.5">Kelompok: ${p.groupName} (${p.className})</p>
+                        </div>
+                    </div>
+
+                    <!-- Team Division Showcase -->
+                    <div class="bg-cyan-50/50 p-4 rounded-2xl border border-cyan-100 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-extrabold text-cyan-950 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-users text-cyan-600"></i> Kontribusi Pembagian Tugas (${p.teamSize || 5} Anggota Tim):
+                            </h4>
+                            ${p.teamSize === 6 ? '<span class="text-[11px] font-bold text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-full border border-purple-200"><i class="fa-solid fa-handshake mr-1"></i>Duet Eksplorasi Visual (Anggota 3 & 4)</span>' : ''}
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                            ${teamHtml || '<p class="text-xs text-slate-400">Belum ada rincian tugas tim.</p>'}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                            <h4 class="font-bold text-slate-900 text-sm border-b border-slate-200 pb-2">01. Spesifikasi Cetak Merchandise</h4>
+                            <p><strong>Jenis Merchandise:</strong> ${p.mediaType}</p>
+                            <p><strong>Ukuran Area Cetak:</strong> ${p.printSize || '-'}</p>
+                            <p><strong>Material & Teknik:</strong> ${p.paperMaterial || '-'}</p>
+                            <p><strong>Finishing Khusus:</strong> ${p.finishing || '-'}</p>
+                            <p><strong>Target Pembeli:</strong> ${p.targetAudience || '-'}</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                            <h4 class="font-bold text-slate-900 text-sm border-b border-slate-200 pb-2">02. Riset Ikon Kota & Visual</h4>
+                            <p><strong>Kota yang Diangkat:</strong> ${p.cityTheme || '-'}</p>
+                            <p><strong>Gaya Visual:</strong> ${p.visualStyle || '-'}</p>
+                            <p><strong>Tipografi:</strong> ${p.typography || '-'}</p>
+                            <p class="flex items-center gap-2"><strong>Palet Warna:</strong> ${colorBadges}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-xs text-slate-700">
+                        <h4 class="font-bold text-blue-900 mb-1">Konsep & Deskripsi Karya Akhir:</h4>
+                        <p class="leading-relaxed">${p.finalDesc || p.researchDesc || 'Tidak ada deskripsi rinci.'}</p>
+                    </div>
+
+                    ${p.feedback ? `
+                        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-xs text-emerald-950">
+                            <p class="font-bold mb-1"><i class="fa-solid fa-award text-emerald-600 mr-1"></i> Evaluasi Guru Evaluator (Nilai: ${p.score || '-'}):</p>
+                            <p class="italic text-emerald-800">"${p.feedback}"</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('modal-detail').classList.remove('hidden');
+        }
+
+        function checkStudentAccess() {
+            if (currentUser && currentUser.role === 'siswa') {
+                switchView('student');
+            } else {
+                openLoginModal('siswa');
+            }
+        }
+
+        function checkTeacherAccess() {
+            if (currentUser && currentUser.role === 'guru') {
+                switchView('teacher');
+            } else {
+                openLoginModal('guru');
+            }
+        }
+
+        function switchView(viewName) {
+            const views = ['gallery', 'student', 'teacher'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const nav = document.getElementById(`nav-${v}`);
+                if (el) {
+                    if (v === viewName) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
+                if (nav) {
+                    if (v === viewName) {
+                        nav.classList.add('bg-slate-800', 'text-white');
+                        nav.classList.remove('text-slate-300');
+                    } else {
+                        nav.classList.remove('bg-slate-800', 'text-white');
+                        nav.classList.add('text-slate-300');
+                    }
+                }
+            });
+
+            const floatingNav = document.getElementById('student-floating-nav');
+            if (floatingNav) {
+                if (viewName === 'student') {
+                    floatingNav.classList.remove('hidden');
+                    updateFloatingNavControls();
+                } else {
+                    floatingNav.classList.add('hidden');
+                }
+            }
+
+            if (viewName === 'gallery') renderGallery();
+            if (viewName === 'teacher') renderTeacherList();
+            if (viewName === 'student' && activeProject) loadStudentForm();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openLoginModal(role = 'siswa') {
+            switchAuthTab(role);
+            document.getElementById('modal-auth').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.classList.add('hidden');
+        }
+
+        function switchAuthTab(role) {
+            const tabSiswa = document.getElementById('auth-tab-siswa');
+            const tabGuru = document.getElementById('auth-tab-guru');
+            const formSiswa = document.getElementById('form-login-siswa');
+            const formGuru = document.getElementById('form-login-guru');
+
+            if (role === 'siswa') {
+                tabSiswa.className = "flex-1 py-3.5 text-xs font-bold text-center border-b-2 border-blue-600 text-blue-600";
+                tabGuru.className = "flex-1 py-3.5 text-xs font-bold text-center text-slate-500 border-b-2 border-transparent";
+                formSiswa.classList.remove('hidden');
+                formGuru.classList.add('hidden');
+            } else {
+                tabGuru.className = "flex-1 py-3.5 text-xs font-bold text-center border-b-2 border-blue-600 text-blue-600";
+                tabSiswa.className = "flex-1 py-3.5 text-xs font-bold text-center text-slate-500 border-b-2 border-transparent";
+                formGuru.classList.remove('hidden');
+                formSiswa.classList.add('hidden');
+            }
+        }
+
+        function handleSiswaLogin(e) {
+            e.preventDefault();
+            const groupName = document.getElementById('login-group-name').value.trim();
+            const className = document.getElementById('login-class').value;
+            const tSize = parseInt(document.getElementById('login-team-size-select').value, 10) || 5;
+            
+            const m1 = document.getElementById('login-member-1')?.value.trim() || 'Anggota 1';
+            const m2 = document.getElementById('login-member-2')?.value.trim() || 'Anggota 2';
+            const m3 = document.getElementById('login-member-3')?.value.trim() || 'Anggota 3';
+            const m4 = document.getElementById('login-member-4')?.value.trim() || 'Anggota 4';
+            const m5 = document.getElementById('login-member-5')?.value.trim() || 'Anggota 5';
+            const m6 = document.getElementById('login-member-6')?.value.trim() || 'Anggota 6';
+
+            const memberList = [m1, m2, m3, m4, m5];
+            if (tSize === 6) memberList.push(m6);
+            const members = memberList.join(', ');
+
+            if (!groupName) {
+                showToast('Mohon isi nama kelompok!', 'error');
+                return;
+            }
+
+            currentUser = {
+                role: 'siswa',
+                groupName,
+                className,
+                teamSize: tSize,
+                members
+            };
+
+            let existing = projectsData.find(p => p.groupName.toLowerCase() === groupName.toLowerCase() && p.className === className);
+            if (!existing) {
+                existing = {
+                    id: 'proj-' + Date.now(),
+                    cityTheme: '',
+                    groupName: groupName,
+                    className: className,
+                    teamSize: tSize,
+                    members: members,
+                    teamMembers: [
+                        { name: m1, role: 'Ketua Tim & Riset Budaya Kota', task: 'Riset keunikan ikon budaya kota & koordinasi kelompok', status: 'Sedang Dikerjakan' },
+                        { name: m2, role: 'Spesialis Brief & Media Cetak', task: 'Menentukan spesifikasi merchandise, bahan media, & teknik cetak', status: 'Sedang Dikerjakan' },
+                        { name: m3, role: 'Ilustrator Utama & Konsep Visual', task: 'Membuat sketsa rancangan merchandise dan tata letak komposisi utama', status: 'Sedang Dikerjakan' },
+                        { name: m4, role: 'Spesialis Pra-Cetak & QC Mesin', task: 'Verifikasi CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing khusus', status: 'Sedang Dikerjakan' },
+                        { name: m5, role: 'Desainer Artwork Akhir & Mockup', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk realistis', status: 'Sedang Dikerjakan' },
+                        { name: m6, role: 'Desainer Artwork Akhir & Mockup', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk realistis', status: 'Sedang Dikerjakan' }
+                    ],
+                    title: `Merchandise Tematik ${groupName}`,
+                    mediaType: 'Kaos',
+                    targetAudience: '',
+                    researchDesc: '',
+                    moodboardUrl: '',
+                    printSize: 'Area Cetak A3 Depan (30 x 42 cm)',
+                    paperMaterial: 'Cotton Combed 30s + Sablon DTF High-Res',
+                    briefMessage: '',
+                    sketchUrl: '',
+                    typography: 'Primary: Montserrat, Secondary: Inter',
+                    colors: ['#1d4ed8', '#0284c7', '#f59e0b', '#0f172a'],
+                    visualStyle: 'Modern Urban Streetwear',
+                    finalImageUrl: '',
+                    finalDesc: '',
+                    driveLink: '',
+                    prepress: { cmyk: true, dpi: true, bleed: true, outline: true },
+                    finishing: '',
+                    status: 'Proses',
+                    score: null,
+                    feedback: ''
+                };
+                projectsData.unshift(existing);
+            } else {
+                existing.teamSize = tSize;
+            }
+
+            activeProject = existing;
+            updateUserBadge();
+            closeModal('modal-auth');
+            saveProjectsToStorage();
+            switchView('student');
+            loadStudentForm();
+            showToast(`Selamat datang ${groupName}! Tim terdaftar (${tSize} Siswa).`, 'success');
+        }
+
+        function handleGuruLogin(e) {
+            e.preventDefault();
+            const teacherName = document.getElementById('login-teacher-name').value.trim();
+            const pass = document.getElementById('login-teacher-pass').value.trim();
+
+            if (pass !== 'guru123') {
+                showToast('Kata sandi guru salah! Gunakan: guru123', 'error');
+                return;
+            }
+
+            currentUser = {
+                role: 'guru',
+                name: teacherName || 'Guru Evaluator'
+            };
+
+            updateUserBadge();
+            closeModal('modal-auth');
+            switchView('teacher');
+            renderTeacherList();
+            showToast(`Selamat datang, ${currentUser.name}! Mode penilaian aktif.`, 'success');
+        }
+
+        function guestMode() {
+            currentUser = {
+                role: 'siswa',
+                groupName: 'Kelompok Eksplorasi Tamu',
+                className: 'XI DKV 1',
+                teamSize: 5,
+                members: 'Tamu 1, Tamu 2, Tamu 3, Tamu 4, Tamu 5'
+            };
+
+            let guestProj = projectsData.find(p => p.groupName === currentUser.groupName);
+            if (!guestProj) {
+                guestProj = {
+                    id: 'proj-' + Date.now(),
+                    cityTheme: '',
+                    groupName: currentUser.groupName,
+                    className: currentUser.className,
+                    teamSize: 5,
+                    members: currentUser.members,
+                    teamMembers: [
+                        { name: 'Tamu 1', role: 'Ketua Tim & Riset Budaya Kota', task: 'Riset keunikan ikon budaya kota & koordinasi kelompok', status: 'Sedang Dikerjakan' },
+                        { name: 'Tamu 2', role: 'Spesialis Brief & Media Cetak', task: 'Menentukan spesifikasi merchandise, bahan media, & teknik cetak', status: 'Sedang Dikerjakan' },
+                        { name: 'Tamu 3', role: 'Ilustrator Utama & Konsep Visual', task: 'Membuat sketsa rancangan merchandise dan tata letak komposisi utama', status: 'Sedang Dikerjakan' },
+                        { name: 'Tamu 4', role: 'Spesialis Pra-Cetak & QC Mesin', task: 'Verifikasi CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing khusus', status: 'Sedang Dikerjakan' },
+                        { name: 'Tamu 5', role: 'Desainer Artwork Akhir & Mockup', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk realistis', status: 'Sedang Dikerjakan' }
+                    ],
+                    title: 'Proyek Desain Merchandise Tamu',
+                    mediaType: 'Tumbler',
+                    targetAudience: '',
+                    researchDesc: '',
+                    moodboardUrl: '',
+                    printSize: 'Keliling 360 Derajat (18 x 23 cm)',
+                    paperMaterial: 'Stainless Steel Double Wall + Cetak UV Flatbed',
+                    briefMessage: '',
+                    sketchUrl: '',
+                    typography: 'Primary: Montserrat, Secondary: Inter',
+                    colors: ['#1d4ed8', '#0284c7', '#f59e0b', '#0f172a'],
+                    visualStyle: 'Modern Clean',
+                    finalImageUrl: '',
+                    finalDesc: '',
+                    driveLink: '',
+                    prepress: { cmyk: true, dpi: true, bleed: true, outline: true },
+                    finishing: '',
+                    status: 'Proses',
+                    score: null,
+                    feedback: ''
+                };
+                projectsData.unshift(guestProj);
+            }
+
+            activeProject = guestProj;
+            updateUserBadge();
+            closeModal('modal-auth');
+            saveProjectsToStorage();
+            switchView('student');
+            loadStudentForm();
+            showToast('Masuk sebagai Tamu (Mode Eksplorasi).', 'info');
+        }
+
+        function updateUserBadge() {
+            const badge = document.getElementById('user-badge');
+            const badgeText = document.getElementById('user-badge-text');
+            const loginBtn = document.getElementById('login-btn-text');
+
+            if (currentUser) {
+                badge.classList.remove('hidden');
+                if (currentUser.role === 'guru') {
+                    badgeText.innerText = `Guru: ${currentUser.name}`;
+                    loginBtn.innerText = 'Keluar / Ganti Akun';
+                } else {
+                    badgeText.innerText = `${currentUser.groupName} (${currentUser.className})`;
+                    loginBtn.innerText = 'Ganti Akun';
+                }
+            } else {
+                badge.classList.add('hidden');
+                loginBtn.innerText = 'Masuk / Ganti Akun';
+            }
+        }
+
+        const STEP_SEQUENCE = ['overview', 'team', 1, 2, 3, 4, 5];
+        const STEP_NAMES = {
+            'overview': 'Ringkasan',
+            'team': 'Pembagian Tugas',
+            1: '01. Riset',
+            2: '02. Brief',
+            3: '03. Visual',
+            4: '04. Final',
+            5: '05. Pre-Press'
+        };
+
+        function goToPrevStep() {
+            const idx = STEP_SEQUENCE.indexOf(currentStep);
+            if (idx > 0) {
+                setActiveStep(STEP_SEQUENCE[idx - 1]);
+            }
+        }
+
+        function goToNextStep() {
+            const idx = STEP_SEQUENCE.indexOf(currentStep);
+            if (idx < STEP_SEQUENCE.length - 1) {
+                setActiveStep(STEP_SEQUENCE[idx + 1]);
+            } else {
+                saveStudentProject();
+            }
+        }
+
+        function updateFloatingNavControls() {
+            const btnPrev = document.getElementById('floating-btn-prev');
+            const btnNext = document.getElementById('floating-btn-next');
+            const lblPrev = document.getElementById('floating-prev-label');
+            const lblNext = document.getElementById('floating-next-label');
+
+            if (!btnPrev || !btnNext) return;
+
+            const idx = STEP_SEQUENCE.indexOf(currentStep);
+
+            if (idx <= 0) {
+                btnPrev.style.display = 'none';
+            } else {
+                btnPrev.style.display = 'flex';
+                if (lblPrev) lblPrev.innerText = STEP_NAMES[STEP_SEQUENCE[idx - 1]] || 'Kembali';
+            }
+
+            btnNext.style.display = 'flex';
+            if (idx >= STEP_SEQUENCE.length - 1) {
+                btnNext.className = "floating-side-btn fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 sm:px-4 sm:py-3.5 rounded-2xl backdrop-blur-md border border-emerald-400/40 transition-all duration-300 flex items-center gap-2.5 group hover:scale-105 active:scale-95 shadow-emerald-500/25";
+                if (lblNext) lblNext.innerText = 'Kirim ke Guru';
+            } else {
+                btnNext.className = "floating-side-btn fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 bg-blue-600 hover:bg-blue-700 text-white p-3.5 sm:px-4 sm:py-3.5 rounded-2xl backdrop-blur-md border border-blue-400/40 transition-all duration-300 flex items-center gap-2.5 group hover:scale-105 active:scale-95 shadow-blue-500/25";
+                if (lblNext) lblNext.innerText = STEP_NAMES[STEP_SEQUENCE[idx + 1]] || 'Lanjut';
+            }
+        }
+
+        function setActiveStep(step) {
+            currentStep = step;
+            const panels = document.querySelectorAll('.step-panel');
+            panels.forEach(p => p.classList.add('hidden'));
+
+            const targetPanel = document.getElementById(`step-panel-${step}`);
+            if (targetPanel) {
+                targetPanel.classList.remove('hidden');
+            }
+
+            updateFloatingNavControls();
+            updateDashboardSummaries();
+            window.scrollTo({ top: 120, behavior: 'smooth' });
+        }
+
+        function updateDashboardSummaries() {
+            if (!activeProject) return;
+
+            const tSize = activeProject.teamSize || 5;
+            const dTeam = document.getElementById('dash-summary-team');
+            const d1 = document.getElementById('dash-summary-1');
+            const d2 = document.getElementById('dash-summary-2');
+            const d3 = document.getElementById('dash-summary-3');
+            const d4 = document.getElementById('dash-summary-4');
+            const d5 = document.getElementById('dash-summary-5');
+
+            if (dTeam) {
+                const filledMembers = (activeProject.teamMembers || []).slice(0, tSize).filter(m => m.name && !m.name.includes('Anggota')).length;
+                dTeam.innerText = filledMembers > 0 
+                    ? `Terdata ${tSize} anggota kelompok dengan spesialisasi tugas masing-masing.` 
+                    : `Belum diatur. Klik untuk membagi tugas ${tSize} anggota kelompok.`;
+            }
+
+            if (d1) d1.innerText = activeProject.researchDesc ? activeProject.researchDesc.substring(0, 110) + '...' : 'Belum diisi. Masukkan riset budaya dan target audiens.';
+            if (d2) d2.innerText = `Media: ${activeProject.mediaType || '-'} | Ukuran: ${activeProject.printSize || '-'} | Bahan: ${activeProject.paperMaterial || '-'}`;
+            if (d3) d3.innerText = `Font: ${activeProject.typography || '-'} | Style: ${activeProject.visualStyle || '-'}`;
+            if (d4) d4.innerText = activeProject.finalImageUrl ? 'Mockup telah diunggah dengan link file kerja.' : 'Belum ada mockup. Masukkan URL mockup dan drive.';
+            if (d5) d5.innerText = `CMYK: ${activeProject.prepress?.cmyk ? 'Ya' : 'Belum'} | 300 DPI: ${activeProject.prepress?.dpi ? 'Ya' : 'Belum'} | Bleed: ${activeProject.prepress?.bleed ? 'Ya' : 'Belum'}`;
+
+            let filledCount = 0;
+            const checks = [
+                activeProject.title,
+                activeProject.cityTheme,
+                activeProject.teamMembers && activeProject.teamMembers.length >= tSize,
+                activeProject.researchDesc,
+                activeProject.targetAudience,
+                activeProject.mediaType,
+                activeProject.printSize,
+                activeProject.paperMaterial,
+                activeProject.sketchUrl || activeProject.visualStyle,
+                activeProject.finalImageUrl,
+                activeProject.prepress?.cmyk,
+                activeProject.prepress?.dpi
+            ];
+            checks.forEach(c => { if (c) filledCount++; });
+            const percent = Math.round((filledCount / checks.length) * 100);
+
+            const percentLabel = document.getElementById('student-progress-percent');
+            const bar = document.getElementById('student-progress-bar');
+            if (percentLabel) percentLabel.innerText = `${percent}%`;
+            if (bar) bar.style.width = `${percent}%`;
+        }
+
+        function handleGalleryUpload(inputElement, previewImgId, projectPropName) {
+            const file = inputElement.files && inputElement.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast('Mohon pilih file gambar yang valid (JPG, PNG, WEBP)!', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    const MAX_WIDTH = 1000;
+                    const MAX_HEIGHT = 1000;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+
+                    const previewEl = document.getElementById(previewImgId);
+                    if (previewEl) {
+                        previewEl.src = compressedBase64;
+                    }
+
+                    if (activeProject && projectPropName) {
+                        activeProject[projectPropName] = compressedBase64;
+                        saveProjectsToStorage();
+                        updateDashboardSummaries();
+                    }
+
+                    showToast('Gambar berhasil diunggah dari galeri!', 'success');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function inspectProject(projId) {
+            const p = projectsData.find(item => item.id === projId);
+            if (!p) return;
+
+            const content = document.getElementById('eval-content-body');
+            const colorBadges = (p.colors || []).map(c => `<span class="w-6 h-6 rounded-full inline-block border border-slate-300 shadow-sm" style="background-color: ${c}"></span>`).join(' ');
+
+            const teamEvalList = (p.teamMembers || []).slice(0, p.teamSize || 5).map((m, idx) => `
+                <div class="p-2.5 bg-white rounded-xl border border-slate-200 text-xs flex justify-between items-center">
+                    <div>
+                        <span class="font-bold text-slate-800">${idx + 1}. ${m.name}</span>
+                        <p class="text-[11px] text-cyan-800 font-semibold">${m.role}</p>
+                        <p class="text-[10px] text-slate-400 truncate max-w-xs">${m.task}</p>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${m.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                        ${m.status || 'Dikerjakan'}
+                    </span>
+                </div>
+            `).join('');
+
+            content.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="rounded-xl overflow-hidden border border-slate-200">
+                            <img src="${p.finalImageUrl || 'https://placehold.co/600x400'}" class="w-full h-64 object-cover" alt="Mockup Final">
+                        </div>
+
+                        <!-- Team Assessment -->
+                        <div class="bg-cyan-50/60 p-4 rounded-xl border border-cyan-200 text-xs space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-bold text-cyan-950 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-users-gear text-cyan-600"></i> Kontribusi Tim (${p.teamSize || 5} Siswa):
+                                </h4>
+                                <span class="text-[10px] font-extrabold text-cyan-700 bg-white px-2 py-0.5 rounded border border-cyan-200">
+                                    ${p.teamSize === 6 ? '6 Anggota (Duet Visual)' : '5 Anggota'}
+                                </span>
+                            </div>
+                            <div class="space-y-1.5">
+                                ${teamEvalList || '<p class="text-slate-400">Belum ada data anggota.</p>'}
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                                <span class="font-bold text-slate-800 text-sm">${p.groupName}</span>
+                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-100 text-blue-800">${p.className}</span>
+                            </div>
+                            <p><strong>Tema Kota:</strong> <span class="text-rose-600 font-bold">${p.cityTheme || '-'}</span></p>
+                            <p><strong>Jenis Merchandise:</strong> ${p.mediaType || '-'}</p>
+                            <p><strong>Ukuran / Bidang Cetak:</strong> ${p.printSize || '-'}</p>
+                            <p><strong>Material Media:</strong> ${p.paperMaterial || '-'}</p>
+                            <p><strong>Finishing Cetak:</strong> ${p.finishing || '-'}</p>
+                            <p class="flex items-center gap-1.5 pt-1"><strong>Palet HEX:</strong> ${colorBadges}</p>
+                            ${p.driveLink ? `<p class="pt-1"><a href="${p.driveLink}" target="_blank" class="text-blue-600 font-bold hover:underline inline-flex items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Buka File High-Res Drive</a></p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200/80 text-xs">
+                            <h4 class="font-bold text-blue-900 mb-1">Riset Ikon Kota & Konsep Karya:</h4>
+                            <p class="text-blue-950 leading-relaxed">${p.researchDesc || 'Tidak ada deskripsi riset.'}</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2">
+                            <h4 class="font-bold text-slate-800">Cek Kesiapan Pre-Press Mesin Cetak:</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="p-2 rounded bg-white border border-slate-200 font-medium ${p.prepress?.cmyk ? 'text-emerald-700' : 'text-slate-400'}">
+                                    <i class="fa-solid ${p.prepress?.cmyk ? 'fa-circle-check text-emerald-500' : 'fa-circle-xmark'} mr-1"></i> CMYK Mode
+                                </div>
+                                <div class="p-2 rounded bg-white border border-slate-200 font-medium ${p.prepress?.dpi ? 'text-emerald-700' : 'text-slate-400'}">
+                                    <i class="fa-solid ${p.prepress?.dpi ? 'fa-circle-check text-emerald-500' : 'fa-circle-xmark'} mr-1"></i> 300 DPI High-Res
+                                </div>
+                                <div class="p-2 rounded bg-white border border-slate-200 font-medium ${p.prepress?.bleed ? 'text-emerald-700' : 'text-slate-400'}">
+                                    <i class="fa-solid ${p.prepress?.bleed ? 'fa-circle-check text-emerald-500' : 'fa-circle-xmark'} mr-1"></i> Bleed 3mm
+                                </div>
+                                <div class="p-2 rounded bg-white border border-slate-200 font-medium ${p.prepress?.outline ? 'text-emerald-700' : 'text-slate-400'}">
+                                    <i class="fa-solid ${p.prepress?.outline ? 'fa-circle-check text-emerald-500' : 'fa-circle-xmark'} mr-1"></i> Font Outlines
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Grading Form -->
+                        <form onsubmit="submitEvaluation(event, '${p.id}')" class="space-y-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nilai Evaluasi (0 - 100) *</label>
+                                    <input type="number" id="eval-score" min="0" max="100" value="${p.score !== null ? p.score : 85}" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Status Kelulusan *</label>
+                                    <select id="eval-status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="Selesai" ${p.status === 'Selesai' ? 'selected' : ''}>Selesai / Luluskan ke Galeri</option>
+                                        <option value="Revisi" ${p.status === 'Revisi' ? 'selected' : ''}>Perlu Revisi</option>
+                                        <option value="Proses" ${p.status === 'Proses' ? 'selected' : ''}>Menunggu / Draft</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Evaluasi / Masukan Guru *</label>
+                                <textarea id="eval-feedback" rows="3" required placeholder="Tuliskan apresiasi, koreksi warna cetak, atau instruksi perbaikan..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed">${p.feedback || ''}</textarea>
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-2">
+                                <button type="button" onclick="closeModal('modal-eval')" class="px-4 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2 rounded-lg text-xs shadow-md transition">Simpan Hasil Penilaian</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modal-eval').classList.remove('hidden');
+        }
+
+        function submitEvaluation(e, projId) {
+            e.preventDefault();
+            const p = projectsData.find(item => item.id === projId);
+            if (!p) return;
+
+            const score = parseInt(document.getElementById('eval-score').value, 10);
+            const status = document.getElementById('eval-status').value;
+            const feedback = document.getElementById('eval-feedback').value.trim();
+
+            p.score = score;
+            p.status = status;
+            p.feedback = feedback;
+
+            saveProjectsToStorage();
+            closeModal('modal-eval');
+            renderTeacherList();
+            renderGallery();
+            showToast(`Penilaian untuk kelompok ${p.groupName} berhasil disimpan!`, 'success');
+        }
+
+       // SIMPAN PROYEK SECARA ONLINE KE CLOUD FIRESTORE
+async function saveProjectsToStorage() {
+    if (!activeProject || !window.db) {
+        localStorage.setItem('studio_design_projects', JSON.stringify(projectsData));
+        if (currentUser) localStorage.setItem('studio_design_user', JSON.stringify(currentUser));
+        return;
+    }
+
+    try {
+        const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+        await setDoc(doc(window.db, "proyek_merchandise", activeProject.id), activeProject);
+        
+        if (currentUser) {
+            localStorage.setItem('studio_design_user', JSON.stringify(currentUser));
+        }
+        console.log("Proyek berhasil disinkronkan ke Cloud Firestore secara online!");
+    } catch (err) {
+        console.warn("Gagal menyimpan ke cloud, menggunakan cadangan lokal:", err);
+        localStorage.setItem('studio_design_projects', JSON.stringify(projectsData));
+    }
+}
+
+// AMBIL DATA PROYEK SECARA ONLINE DARI CLOUD FIRESTORE
+async function loadProjectsFromStorage() {
+    if (!window.db) {
+        loadFromLocalFallback();
+        return;
+    }
+
+    try {
+        const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+        const querySnapshot = await getDocs(collection(window.db, "proyek_merchandise"));
+        
+        projectsData = [];
+        querySnapshot.forEach((docSnap) => {
+            projectsData.push(docSnap.data());
+        });
+
+        if (projectsData.length === 0) {
+            loadFromLocalFallback();
+        }
+
+        const savedUser = localStorage.getItem('studio_design_user');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            updateUserBadge();
+        }
+
+        renderGallery();
+        renderTeacherList();
+    } catch (err) {
+        console.warn("Gagal memuat dari cloud, memuat data lokal:", err);
+        loadFromLocalFallback();
+    }
+}
+
+function loadFromLocalFallback() {
+    try {
+        const saved = localStorage.getItem('studio_design_projects');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                projectsData = parsed.filter(item => item.id !== 'proj-101' && item.id !== 'proj-102');
+            }
+        }
+        const savedUser = localStorage.getItem('studio_design_user');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            updateUserBadge();
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                info: 'fa-circle-info text-blue-400'
+            };
+
+            toast.className = "bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-2.5 transition-all duration-300 pointer-events-auto transform translate-y-2 opacity-0";
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initAppBackground();
+            loadProjectsFromStorage();
+            if (projectsData.length > 0) {
+                activeProject = projectsData[0];
+            } else {
+                activeProject = null;
+            }
+            renderGallery();
+            renderTeacherList();
+        });
+    </script>
+</body>
+</html>

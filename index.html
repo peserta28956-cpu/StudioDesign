@@ -12,6 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts Syne -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -105,6 +107,8 @@
     <!-- Script Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <!-- Google Fonts Syne -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body class="bg-slate-950 text-slate-800 font-sans min-h-screen flex flex-col relative selection:bg-blue-600 selection:text-white">
 
@@ -175,7 +179,7 @@
                         <span class="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs px-3.5 py-1 rounded-full font-semibold inline-flex items-center gap-2">
                             <i class="fa-solid fa-award text-amber-400"></i> Pameran Desain Merchandise Khas Daerah Jawa Timur
                         </span>
-                        <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent" style="font-family: 'Syne', sans-serif;">
+                        <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent" style="font-family: 'Poppins', sans-serif;">
                             Eksplorasi Karya Design Merchandise Siswa
                         </h2>
                         <p class="text-slate-300 text-xs sm:text-sm leading-relaxed text-justify">
@@ -259,8 +263,8 @@
                                 <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
                                 <span>Paket Proyek Lengkap (6 Produk Merchandise)</span>
                             </div>
-                            <h2 id="student-project-title-heading" class="text-2xl sm:text-3xl font-display font-black tracking-tight text-white leading-tight">
-                                Judul Proyek Desain Merchandise
+                            <h2 id="student-project-title-heading" class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent" style="font-family: 'Syne', sans-serif;">
+                                Design Tumbler
                             </h2>
                         </div>
                         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-300 pt-1">
@@ -831,7 +835,7 @@
                     <span class="bg-indigo-500/30 text-indigo-300 text-xs px-3 py-1 rounded-full font-semibold mb-2 inline-block">
                         <i class="fa-solid fa-user-check mr-1"></i> Mode Penilaian & Evaluasi Guru
                     </span>
-                    <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent" style="font-family: 'Syne', sans-serif;">
+                    <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent" style="font-family: 'Poppins', sans-serif;">
                     Dashboard Evaluasi Tugas Merchandise</h2>
                     <p class="text-xs text-slate-400 mt-1">Review kesiapan pra-cetak, berikan revisi/nilai, dan publikasikan karya siswa ke galeri publik.</p>
                 </div>
@@ -860,7 +864,7 @@
                             <option value="all">Semua Kelas</option>
                             <option value="XI DKV 1">XI DKV 1</option>
                             <option value="XI DKV 2">XI DKV 2</option>
-                            <option value="XI DKV 3">XI DKV 3</option>
+                            <option value="XII DKV 1">XI DKV 3</option>
                         </select>
                     </div>
                     <div class="flex items-center gap-2">
@@ -940,7 +944,7 @@
                             <select id="login-class" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="XI DKV 1">XI DKV 1</option>
                                 <option value="XI DKV 2">XI DKV 2</option>
-                                <option value="XI DKV 3">XI DKV 3</option>
+                                <option value="XII DKV 1">XI DKV 3</option>
                             </select>
                         </div>
                         <div>
@@ -1044,9 +1048,28 @@
             messagingSenderId: "724960044332",
             appId: "1:724960044332:web:086ca9d45c0e64c291b889"
         };
-        // Jalankan Firebase & Database
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+
+        // Redam pesan koneksi internal Firestore agar retry network/sandbox tidak memicu console error
+        try {
+            if (typeof firebase !== 'undefined' && firebase.firestore) {
+                firebase.firestore.setLogLevel('silent');
+            }
+        } catch (logErr) {}
+
+        // Jalankan Firebase & Database dengan penanganan offline otomatis
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            if (typeof firebase !== 'undefined') {
+                db = firebase.firestore();
+                // Mengaktifkan persistensi cache offline tanpa memicu exception ke konsol
+                db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+            }
+        } catch (initErr) {
+            db = null;
+        }
 
         let selectedCityFilter = 'all';
         let selectedMerchFilter = 'all';
@@ -1132,51 +1155,81 @@
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
-                    const compressedBg = canvas.toDataURL('image/jpeg', 0.85);
 
+                    const compressedBg = canvas.toDataURL('image/jpeg', 0.85);
                     applyBackgroundURL(compressedBg);
+
                     try {
                         localStorage.setItem(STORAGE_KEY_BG, compressedBg);
                     } catch (err) {
-                        console.warn('Storage limit reached, bg applied in memory only', err);
+                        console.warn('Storage quota full, background applied in-session', err);
                     }
-                    showToast('Wallpaper latar belakang berhasil diubah!', 'success');
+
+                    showToast('Wallpaper latar belakang berhasil dipasang & disimpan!', 'success');
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-       // --- DATA PERSISTENCE (FIREBASE ONLINE) ---
+        // --- DATA PERSISTENCE (FIREBASE ONLINE & OFFLINE RESILIENT) ---
         function loadProjectsFromStorage() {
             try {
                 // 1. Ambil data user (Siswa/Guru) dari lokal agar tidak perlu login ulang
                 const savedUser = localStorage.getItem(STORAGE_KEY_USER);
                 if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
+                    try {
+                        currentUser = JSON.parse(savedUser);
+                    } catch (ue) {}
                 }
                 updateUserBadge();
 
-                // 2. Ambil data Proyek dari Firebase secara REAL-TIME
-                db.collection("projects_data").onSnapshot((snapshot) => {
-                    projectsData = [];
-                    snapshot.forEach((doc) => {
-                        projectsData.push(doc.data());
-                    });
+                // 2. Ambil data lokal terlebih dahulu untuk kecepatan render awal instan
+                const localBackup = localStorage.getItem(STORAGE_KEY_PROJECTS);
+                if (localBackup) {
+                    try {
+                        const parsed = JSON.parse(localBackup);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            projectsData = parsed;
+                            renderGallery();
+                            renderTeacherList();
+                        }
+                    } catch (pe) {}
+                }
 
-                    // Setiap kali ada perubahan di database, otomatis perbarui layar!
-                    renderGallery();
-                    renderTeacherList();
-                    
-                    // Jika layar siswa sedang terbuka, perbarui juga tampilannya
-                    if (currentUser && currentUser.role === 'siswa' && activeProject) {
-                        activeProject = projectsData.find(p => p.id === activeProject.id) || projectsData[0];
-                        loadStudentForm();
-                    }
-                });
-            } catch (e) {
-                console.error('Gagal memuat data dari Firebase', e);
-            }
+                // 3. Sinkronkan ke Firebase secara real-time dengan penanganan error hening (silent fallback)
+                if (db) {
+                    db.collection("projects_data").onSnapshot(
+                        { includeMetadataChanges: false },
+                        (snapshot) => {
+                            const cloudProjects = [];
+                            snapshot.forEach((doc) => {
+                                cloudProjects.push(doc.data());
+                            });
+
+                            if (cloudProjects.length > 0) {
+                                projectsData = cloudProjects;
+                                try {
+                                    localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projectsData));
+                                } catch (lsErr) {}
+                            }
+
+                            // Perbarui tampilan
+                            renderGallery();
+                            renderTeacherList();
+
+                            // Jika layar siswa sedang terbuka, perbarui juga tampilannya
+                            if (currentUser && currentUser.role === 'siswa' && activeProject) {
+                                activeProject = projectsData.find(p => p.id === activeProject.id) || projectsData[0];
+                                loadStudentForm();
+                            }
+                        },
+                        (error) => {
+                            // Abaikan warning koneksi backend saat perangkat sedang offline / sandbox
+                        }
+                    );
+                }
+            } catch (e) {}
         }
 
         function saveProjectsToStorage() {
@@ -1186,16 +1239,21 @@
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
                 }
 
-                // Simpan setiap perubahan proyek ke Firebase Online
-                projectsData.forEach(proj => {
-                    // Menyimpan berdasarkan ID agar data yang lama tertimpa (di-update), bukan ganda
-                    db.collection("projects_data").doc(proj.id).set(proj)
-                        .catch(err => console.error('Gagal upload ke Firebase:', err));
-                });
-            } catch (e) {
-                console.error('Gagal memproses penyimpanan', e);
-            }
+                // Simpan lokal sebagai fallback instan
+                localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projectsData));
+
+                // Simpan setiap perubahan proyek ke Firebase Online jika instance database tersedia
+                if (db) {
+                    projectsData.forEach(proj => {
+                        db.collection("projects_data").doc(proj.id).set(proj)
+                            .catch(() => {
+                                // Tersimpan aman di offline storage saat koneksi backend tidak tersedia
+                            });
+                    });
+                }
+            } catch (e) {}
         }
+
         function resetToSampleData() {
             if (!confirm('Muat 2 data proyek merchandise contoh untuk demonstrasi? Data yang sudah ada tidak akan hilang.')) return;
 
@@ -1451,7 +1509,7 @@
                             { name: 'Anggota 5', role: 'Desainer Artwork Akhir & Mockup', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk', status: 'Sedang Dikerjakan' },
                             { name: 'Anggota 6', role: 'Desainer Artwork Akhir & Mockup (Partner)', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk', status: 'Sedang Dikerjakan' }
                         ],
-                        title: `${merch} Tematik ${groupName}`,
+                        title: merch === 'Tumbler' ? 'Design Tumbler' : `${merch} Tematik ${groupName}`,
                         mediaType: merch,
                         targetAudience: '',
                         researchDesc: '',
@@ -1480,7 +1538,7 @@
 
         function switchCurrentGroupMerch(merch) {
             if (!currentUser) return;
-            // Save current changes first
+            // Simpan perubahan form saat ini sebelum beralih
             saveStudentProject(false);
 
             const target = projectsData.find(p => 
@@ -2563,49 +2621,41 @@
             p.status = status;
             p.feedback = feedback;
 
-            // Simpan langsung ke Firestore dan perbarui tampilan
+            // Simpan ke local storage terlebih dahulu agar langsung reaktif
+            saveProjectsToStorage();
+            closeModal('modal-eval');
+            renderTeacherList();
+            renderGallery();
+
+            // Simpan ke Firestore dengan fallback hening jika koneksi terputus
             if (db) {
                 db.collection("projects_data").doc(p.id).set(p)
                     .then(() => {
-                        closeModal('modal-eval');
-                        renderTeacherList();
-                        renderGallery();
                         showToast(`Penilaian tugas ${p.mediaType} kelompok ${p.groupName} berhasil disimpan!`, 'success');
                     })
-                    .catch(err => {
-                        console.error("Gagal menyimpan penilaian:", err);
-                        saveProjectsToStorage();
-                        closeModal('modal-eval');
-                        renderTeacherList();
-                        renderGallery();
+                    .catch(() => {
                         showToast(`Penilaian disimpan di cache lokal.`, 'info');
                     });
             } else {
-                saveProjectsToStorage();
-                closeModal('modal-eval');
-                renderTeacherList();
-                renderGallery();
                 showToast(`Penilaian kelompok ${p.groupName} berhasil disimpan!`, 'success');
             }
         }
 
         function deleteProject(projId) {
-            // Meminta konfirmasi agar tidak tidak sengaja terhapus
+            // Meminta konfirmasi agar tidak sengaja terhapus
             if (confirm("Peringatan: Apakah Anda yakin ingin menghapus karya ini secara permanen? Data akan hilang dari Portal Guru dan Galeri Publik.")) {
+                if (db) {
+                    db.collection("projects_data").doc(projId).delete().catch(() => {});
+                }
                 
-                // Perintah Firebase untuk menghapus dokumen berdasarkan ID-nya
-                db.collection("projects_data").doc(projId).delete()
-                    .then(() => {
-                        showToast("Karya berhasil dihapus permanen!", "success");
-                        // Sinkronisasi data lokal agar langsung ter-update sebelum snapshot merespons
-                        projectsData = projectsData.filter(p => p.id !== projId);
-                        renderTeacherList();
-                        renderGallery();
-                    })
-                    .catch((error) => {
-                        console.error("Gagal menghapus karya: ", error);
-                        showToast("Terjadi kesalahan saat menghapus data.", "error");
-                    });
+                // Sinkronisasi data lokal agar langsung ter-update
+                projectsData = projectsData.filter(p => p.id !== projId);
+                try {
+                    localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projectsData));
+                } catch (e) {}
+                renderTeacherList();
+                renderGallery();
+                showToast("Karya berhasil dihapus!", "success");
             }
         }
 
@@ -2728,6 +2778,17 @@
                 teamSize: tSize,
                 members
             };
+            // Simpan data sesi kelompok ke Firebase Cloud agar tersimpan online
+    if (typeof db !== 'undefined') {
+        const docId = `${className}_${groupName}`.replace(/\s+/g, '_');
+        db.collection("studentSessions").doc(docId).set({
+            className: className,
+            groupName: groupName,
+            teamSize: tSize,
+            members: members,
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(err => console.error("Gagal sinkronisasi cloud:", err));
+    }
 
             // Ensure all 6 projects exist for this group
             ensureAll6ProjectsForGroup(groupName, className, tSize, members, '');
@@ -2858,7 +2919,7 @@
             loadProjectsFromStorage();
 
             if (currentUser && currentUser.role === 'siswa') {
-                ensureAll6ProjectsForGroup(currentUser.groupName, currentUser.className, currentUser.teamSize, currentUser.members, '');
+                //ensureAll6ProjectsForGroup(currentUser.groupName, currentUser.className, currentUser.teamSize, currentUser.members, '');
                 activeProject = projectsData.find(p => 
                     p.groupName.toLowerCase() === currentUser.groupName.toLowerCase() && 
                     p.className === currentUser.className

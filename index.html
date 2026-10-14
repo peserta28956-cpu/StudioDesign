@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Design - Portal Desain Cetak Siswa & Guru</title>
+    <title>SketsaDesign - Portal Desain Cetak Siswa & Guru</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Google Fonts Syne -->
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -107,8 +105,6 @@
     <!-- Script Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-    <!-- Google Fonts Syne -->
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body class="bg-slate-950 text-slate-800 font-sans min-h-screen flex flex-col relative selection:bg-blue-600 selection:text-white">
 
@@ -165,6 +161,18 @@
                 </button>
             </div>
         </div>
+        <!-- Mobile Quick Nav -->
+        <div class="flex md:hidden border-t border-slate-800 bg-slate-900/95 px-2 py-1.5 justify-around">
+            <button onclick="switchView('gallery')" class="text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 py-1 px-3 rounded-lg">
+                <i class="fa-solid fa-shapes text-blue-400"></i> Galeri
+            </button>
+            <button onclick="checkStudentAccess()" class="text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 py-1 px-3 rounded-lg">
+                <i class="fa-solid fa-pen-ruler text-amber-400"></i> Siswa
+            </button>
+            <button onclick="checkTeacherAccess()" class="text-[11px] font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 py-1 px-3 rounded-lg">
+                <i class="fa-solid fa-user-tie text-emerald-400"></i> Guru
+            </button>
+        </div>
     </header>
 
     <!-- MAIN CONTAINER -->
@@ -200,7 +208,7 @@
                         <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80" alt="Eksplorasi Karya Merchandise" class="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none"></div>
                         <span class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700">
-                            <i class="fa-solid fa-shapes mr-1 text-cyan-400"></i>
+                            <i class="fa-solid fa-shapes mr-1 text-cyan-400"></i> Showcase Karya Siswa
                         </span>
                     </div>
                 </div>
@@ -497,19 +505,28 @@
                             <div>
                                 <h4 class="font-bold text-cyan-950 text-sm mb-1">Pengaturan & Pembagian Tugas Anggota Tim</h4>
                                 <p class="text-cyan-800 leading-relaxed">
-                                    Pilih ukuran tim (<strong>5 orang</strong> atau <strong>6 orang</strong>). Pada tim 6 orang, tugas <strong>Desainer Artwork Akhir & Mockup</strong> dijalankan bersama oleh Anggota 5 dan Anggota 6.
+                                    Pilih kelas dan ukuran tim (<strong>5 orang</strong> atau <strong>6 orang</strong>). Pada tim 6 orang, tugas <strong>Desainer Artwork Akhir & Mockup</strong> dijalankan bersama oleh Anggota 5 dan Anggota 6.
                                 </p>
                             </div>
                         </div>
-                        <div class="bg-white/90 p-1.5 rounded-xl border border-cyan-200 flex items-center gap-1 shadow-sm shrink-0">
-                            <span class="text-[11px] font-bold text-slate-500 px-2">Kapasitas:</span>
-                            <button type="button" onclick="setTeamSize(5)" id="btn-team-size-5" class="px-3 py-1 rounded-lg text-xs font-extrabold transition bg-cyan-600 text-white shadow-sm">5 Orang</button>
-                            <button type="button" onclick="setTeamSize(6)" id="btn-team-size-6" class="px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:bg-slate-100">6 Orang</button>
+                        <div class="flex flex-wrap items-center gap-2 shrink-0">
+                            <div class="bg-white/90 p-1.5 rounded-xl border border-cyan-200 flex items-center gap-1.5 shadow-sm">
+                                <span class="text-[11px] font-bold text-slate-500 pl-2">Kelas:</span>
+                                <select id="student-workspace-class" onchange="changeGroupClass(this.value)" class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-cyan-50 text-cyan-900 border border-cyan-200 outline-none cursor-pointer">
+                                    <option value="XI DKV 1">XI DKV 1</option>
+                                    <option value="XI DKV 2">XI DKV 2</option>
+                                    <option value="XI DKV 3">XI DKV 3</option>
+                                </select>
+                            </div>
+                            <div class="bg-white/90 p-1.5 rounded-xl border border-cyan-200 flex items-center gap-1 shadow-sm">
+                                <span class="text-[11px] font-bold text-slate-500 px-2">Kapasitas:</span>
+                                <button type="button" onclick="setTeamSize(5)" id="btn-team-size-5" class="px-3 py-1 rounded-lg text-xs font-extrabold transition bg-cyan-600 text-white shadow-sm">5 Orang</button>
+                                <button type="button" onclick="setTeamSize(6)" id="btn-team-size-6" class="px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:bg-slate-100">6 Orang</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="space-y-4" id="members-task-container">
-                        <!-- Member 1 to 6 cards generated dynamically or rendered -->
                         <div id="member-cards-list" class="space-y-3.5"></div>
                     </div>
 
@@ -836,7 +853,8 @@
                         <i class="fa-solid fa-user-check mr-1"></i> Mode Penilaian & Evaluasi Guru
                     </span>
                     <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-400 bg-clip-text text-transparent" style="font-family: 'Poppins', sans-serif;">
-                    Dashboard Evaluasi Tugas Merchandise</h2>
+                        Dashboard Evaluasi Tugas Merchandise
+                    </h2>
                     <p class="text-xs text-slate-400 mt-1">Review kesiapan pra-cetak, berikan revisi/nilai, dan publikasikan karya siswa ke galeri publik.</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -864,7 +882,7 @@
                             <option value="all">Semua Kelas</option>
                             <option value="XI DKV 1">XI DKV 1</option>
                             <option value="XI DKV 2">XI DKV 2</option>
-                            <option value="XII DKV 1">XI DKV 3</option>
+                            <option value="XI DKV 3">XI DKV 3</option>
                         </select>
                     </div>
                     <div class="flex items-center gap-2">
@@ -933,40 +951,19 @@
 
             <div class="p-6">
                 <!-- SISWA FORM -->
-                <form id="form-login-siswa" onsubmit="handleSiswaLogin(event)" class="space-y-3.5">
+                <form id="form-login-siswa" onsubmit="handleSiswaLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kelompok *</label>
-                        <input type="text" id="login-group-name" placeholder="Contoh: Kelompok Barong / Studio 01" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Kelompok *</label>
+                        <input type="text" id="login-group-name" placeholder="Contoh: Kelompok Barong / Studio 01" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500 font-semibold">
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Kelas *</label>
-                            <select id="login-class" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="XI DKV 1">XI DKV 1</option>
-                                <option value="XI DKV 2">XI DKV 2</option>
-                                <option value="XII DKV 1">XI DKV 3</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Anggota *</label>
-                            <select id="login-team-size-select" onchange="toggleLoginMemberCount(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="5" selected>5 Orang</option>
-                                <option value="6">6 Orang</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-slate-700">Daftar Nama Anggota Kelompok:</label>
-                        <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                            <input type="text" id="login-member-1" placeholder="1. Ketua (Riset & Budaya)" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <input type="text" id="login-member-2" placeholder="2. Spesialis Brief & Media" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <input type="text" id="login-member-3" placeholder="3. Ilustrator & Konsep Visual" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <input type="text" id="login-member-4" placeholder="4. Spesialis Pra-Cetak (Pre-Press & QC)" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <input type="text" id="login-member-5" placeholder="5. Desainer Final Artwork & Mockup" required class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            <div id="login-member-6-container" class="hidden">
-                                <input type="text" id="login-member-6" placeholder="6. Desainer Final Artwork (Partner Anggota 5)" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Kelas *</label>
+                        <select id="login-class" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="XI DKV 1">XI DKV 1</option>
+                            <option value="XI DKV 2">XI DKV 2</option>
+                            <option value="XI DKV 3">XI DKV 3</option>
+                        </select>
+                        <p class="text-[11px] text-slate-400 mt-1.5">Masukkan nama kelompok dan pilih kelas untuk membuka lembar kerja proyek.</p>
                     </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition">
                         Masuk Lembar Kerja Siswa
@@ -1039,6 +1036,7 @@
         let currentUser = null;
         let activeProject = null;
         let projectsData = [];
+
         // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAj2xc71u-AbYWuyIokuYfjCn-rb0lqqtQ",
@@ -1049,14 +1047,12 @@
             appId: "1:724960044332:web:086ca9d45c0e64c291b889"
         };
 
-        // Redam pesan koneksi internal Firestore agar retry network/sandbox tidak memicu console error
         try {
             if (typeof firebase !== 'undefined' && firebase.firestore) {
                 firebase.firestore.setLogLevel('silent');
             }
         } catch (logErr) {}
 
-        // Jalankan Firebase & Database dengan penanganan offline otomatis
         let db = null;
         try {
             if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -1064,7 +1060,6 @@
             }
             if (typeof firebase !== 'undefined') {
                 db = firebase.firestore();
-                // Mengaktifkan persistensi cache offline tanpa memicu exception ke konsol
                 db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
             }
         } catch (initErr) {
@@ -1175,7 +1170,6 @@
         // --- DATA PERSISTENCE (FIREBASE ONLINE & OFFLINE RESILIENT) ---
         function loadProjectsFromStorage() {
             try {
-                // 1. Ambil data user (Siswa/Guru) dari lokal agar tidak perlu login ulang
                 const savedUser = localStorage.getItem(STORAGE_KEY_USER);
                 if (savedUser) {
                     try {
@@ -1184,7 +1178,6 @@
                 }
                 updateUserBadge();
 
-                // 2. Ambil data lokal terlebih dahulu untuk kecepatan render awal instan
                 const localBackup = localStorage.getItem(STORAGE_KEY_PROJECTS);
                 if (localBackup) {
                     try {
@@ -1197,7 +1190,6 @@
                     } catch (pe) {}
                 }
 
-                // 3. Sinkronkan ke Firebase secara real-time dengan penanganan error hening (silent fallback)
                 if (db) {
                     db.collection("projects_data").onSnapshot(
                         { includeMetadataChanges: false },
@@ -1214,19 +1206,15 @@
                                 } catch (lsErr) {}
                             }
 
-                            // Perbarui tampilan
                             renderGallery();
                             renderTeacherList();
 
-                            // Jika layar siswa sedang terbuka, perbarui juga tampilannya
                             if (currentUser && currentUser.role === 'siswa' && activeProject) {
                                 activeProject = projectsData.find(p => p.id === activeProject.id) || projectsData[0];
                                 loadStudentForm();
                             }
                         },
-                        (error) => {
-                            // Abaikan warning koneksi backend saat perangkat sedang offline / sandbox
-                        }
+                        (error) => {}
                     );
                 }
             } catch (e) {}
@@ -1234,21 +1222,16 @@
 
         function saveProjectsToStorage() {
             try {
-                // Simpan user di lokal agar tetap login
                 if (currentUser) {
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
                 }
 
-                // Simpan lokal sebagai fallback instan
                 localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projectsData));
 
-                // Simpan setiap perubahan proyek ke Firebase Online jika instance database tersedia
                 if (db) {
                     projectsData.forEach(proj => {
                         db.collection("projects_data").doc(proj.id).set(proj)
-                            .catch(() => {
-                                // Tersimpan aman di offline storage saat koneksi backend tidak tersedia
-                            });
+                            .catch(() => {});
                     });
                 }
             } catch (e) {}
@@ -1295,7 +1278,7 @@
                 {
                     id: 'sample-02',
                     groupName: 'Arema Vector Lab',
-                    className: 'XII DKV 2',
+                    className: 'XI DKV 2',
                     teamSize: 6,
                     cityTheme: 'MALANG',
                     title: 'Kaos Grafis Streetwear: Singo Edan Malangan',
@@ -1329,7 +1312,12 @@
                 }
             ];
 
-            projectsData.unshift(...sampleProjects);
+            sampleProjects.forEach(sp => {
+                if (!projectsData.some(p => p.id === sp.id)) {
+                    projectsData.unshift(sp);
+                }
+            });
+
             saveProjectsToStorage();
             renderGallery();
             renderTeacherList();
@@ -1343,7 +1331,6 @@
 
             const tSize = activeProject.teamSize || 5;
 
-            // Ensure array has correct items
             if (!activeProject.teamMembers || !Array.isArray(activeProject.teamMembers) || activeProject.teamMembers.length < 5) {
                 const names = (activeProject.members || '').split(',').map(s => s.trim());
                 activeProject.teamMembers = [
@@ -1431,13 +1418,19 @@
             }
         }
 
-        function toggleLoginMemberCount(count) {
-            const container6 = document.getElementById('login-member-6-container');
-            if (parseInt(count, 10) === 6) {
-                if (container6) container6.classList.remove('hidden');
-            } else {
-                if (container6) container6.classList.add('hidden');
-            }
+        function changeGroupClass(newClass) {
+            if (!activeProject || !currentUser) return;
+            currentUser.className = newClass;
+            projectsData.forEach(p => {
+                if (p.groupName.toLowerCase() === currentUser.groupName.toLowerCase()) {
+                    p.className = newClass;
+                }
+            });
+            const classDisp = document.getElementById('student-class-display');
+            if (classDisp) classDisp.innerText = newClass;
+            updateUserBadge();
+            saveProjectsToStorage();
+            showToast(`Kelas kelompok diperbarui menjadi ${newClass}`, 'info');
         }
 
         // --- MERCHANDISE & CITY HELPERS ---
@@ -1467,7 +1460,6 @@
             }
             if (activeProject) {
                 activeProject.cityTheme = city;
-                // Sync theme across all 6 projects of the current group
                 if (currentUser) {
                     projectsData.forEach(p => {
                         if (p.groupName === currentUser.groupName && p.className === currentUser.className) {
@@ -1485,10 +1477,11 @@
 
         // --- MULTI-PROJECT CREATION & SELECTION ---
         function ensureAll6ProjectsForGroup(groupName, className, teamSize, members, existingCityTheme) {
+            const names = (members || '').split(',').map(s => s.trim());
             ALL_6_MERCH.forEach(merch => {
                 let found = projectsData.find(p => 
                     p.groupName.toLowerCase() === groupName.toLowerCase() && 
-                    p.className === className && 
+                    p.className === className &&
                     p.mediaType === merch
                 );
 
@@ -1502,12 +1495,12 @@
                         teamSize: teamSize || 5,
                         members: members,
                         teamMembers: [
-                            { name: 'Anggota 1', role: 'Ketua Tim & Riset Budaya Kota', task: 'Riset keunikan ikon budaya kota & koordinasi kelompok', status: 'Sedang Dikerjakan' },
-                            { name: 'Anggota 2', role: 'Spesialis Brief & Media Cetak', task: 'Menentukan spesifikasi merchandise, bahan media, & teknik cetak', status: 'Sedang Dikerjakan' },
-                            { name: 'Anggota 3', role: 'Ilustrator Utama & Konsep Visual', task: 'Membuat sketsa rancangan merchandise dan tata letak komposisi', status: 'Sedang Dikerjakan' },
-                            { name: 'Anggota 4', role: 'Spesialis Pra-Cetak & QC Mesin', task: 'Verifikasi CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing', status: 'Sedang Dikerjakan' },
-                            { name: 'Anggota 5', role: 'Desainer Artwork Akhir & Mockup', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk', status: 'Sedang Dikerjakan' },
-                            { name: 'Anggota 6', role: 'Desainer Artwork Akhir & Mockup (Partner)', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk', status: 'Sedang Dikerjakan' }
+                            { name: names[0] || 'Anggota 1', role: 'Ketua Tim & Riset Budaya Kota', task: 'Riset keunikan ikon budaya kota & koordinasi kelompok', status: 'Sedang Dikerjakan' },
+                            { name: names[1] || 'Anggota 2', role: 'Spesialis Brief & Media Cetak', task: 'Menentukan spesifikasi merchandise, bahan media, & teknik cetak', status: 'Sedang Dikerjakan' },
+                            { name: names[2] || 'Anggota 3', role: 'Ilustrator Utama & Konsep Visual', task: 'Membuat sketsa rancangan merchandise dan tata letak komposisi', status: 'Sedang Dikerjakan' },
+                            { name: names[3] || 'Anggota 4', role: 'Spesialis Pra-Cetak & QC Mesin', task: 'Verifikasi CMYK, 300 DPI, Bleed 3mm, Outlines font, & finishing', status: 'Sedang Dikerjakan' },
+                            { name: names[4] || 'Anggota 5', role: 'Desainer Artwork Akhir & Mockup', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk', status: 'Sedang Dikerjakan' },
+                            { name: names[5] || 'Anggota 6', role: 'Desainer Artwork Akhir & Mockup (Partner)', task: 'Digital rendering vektor resolusi tinggi & membuat mockup 3D produk', status: 'Sedang Dikerjakan' }
                         ],
                         title: merch === 'Tumbler' ? 'Design Tumbler' : `${merch} Tematik ${groupName}`,
                         mediaType: merch,
@@ -1538,12 +1531,11 @@
 
         function switchCurrentGroupMerch(merch) {
             if (!currentUser) return;
-            // Simpan perubahan form saat ini sebelum beralih
             saveStudentProject(false);
 
             const target = projectsData.find(p => 
                 p.groupName.toLowerCase() === currentUser.groupName.toLowerCase() && 
-                p.className === currentUser.className && 
+                p.className === currentUser.className &&
                 p.mediaType === merch
             );
 
@@ -1559,7 +1551,7 @@
             if (!tabsContainer || !currentUser) return;
 
             const groupProjects = projectsData.filter(p => 
-                p.groupName.toLowerCase() === currentUser.groupName.toLowerCase() && 
+                p.groupName.toLowerCase() === currentUser.groupName.toLowerCase() &&
                 p.className === currentUser.className
             );
 
@@ -1600,7 +1592,6 @@
                 `;
             }).join('');
 
-            // Update stats
             const statsEl = document.getElementById('student-bundle-stats');
             const pBarEl = document.getElementById('student-bundle-progress-bar');
             if (statsEl) statsEl.innerText = `${completedCount}/6 Selesai`;
@@ -1860,7 +1851,6 @@
                 d5.innerText = `CMYK: ${activeProject.prepress?.cmyk ? 'Ya' : 'Belum'} | 300 DPI: ${activeProject.prepress?.dpi ? 'Ya' : 'Belum'} | Bleed: ${activeProject.prepress?.bleed ? 'Ya' : 'Belum'}`;
             }
 
-            // Hitung persentase kelengkapan untuk proyek aktif
             let filledCount = 0;
             const checks = [
                 Boolean(activeProject.title),
@@ -1901,10 +1891,11 @@
             document.getElementById('student-project-title-heading').innerText = activeProject.title || 'Judul Proyek Desain Merchandise';
             document.getElementById('student-group-name-display').innerText = activeProject.groupName;
             document.getElementById('student-class-display').innerText = activeProject.className;
+            const wsClassSelect = document.getElementById('student-workspace-class');
+            if (wsClassSelect && activeProject.className) wsClassSelect.value = activeProject.className;
             document.getElementById('student-city-display').innerText = activeProject.cityTheme ? activeProject.cityTheme : 'Belum Dipilih';
             document.getElementById('student-merch-display').innerText = activeProject.mediaType || 'Tumbler';
 
-            // Status Badge
             const badge = document.getElementById('student-status-badge');
             if (activeProject.status === 'Selesai') {
                 badge.className = "block w-full py-1.5 px-3 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-center";
@@ -1917,7 +1908,6 @@
                 badge.innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Menunggu / Draft`;
             }
 
-            // Feedback Display
             const fbBox = document.getElementById('student-feedback-box');
             if (activeProject.feedback) {
                 fbBox.classList.remove('hidden');
@@ -1926,13 +1916,11 @@
                 fbBox.classList.add('hidden');
             }
 
-            // Inputs
             document.getElementById('input-city-theme').value = activeProject.cityTheme || '';
             document.getElementById('input-title').value = activeProject.title || '';
             document.getElementById('input-target-audience').value = activeProject.targetAudience || '';
             document.getElementById('input-research-desc').value = activeProject.researchDesc || '';
             
-            // Google Drive links & previews
             const mbDriveInput = document.getElementById('input-moodboard-drive');
             if (mbDriveInput) mbDriveInput.value = activeProject.moodboardDriveLink || activeProject.moodboardUrl || '';
             document.getElementById('preview-moodboard').src = activeProject.moodboardUrl || 'https://placehold.co/600x300/f1f5f9/94a3b8?text=Belum+Ada+Gambar+Moodboard';
@@ -2002,7 +1990,6 @@
             activeProject.targetAudience = document.getElementById('input-target-audience').value.trim();
             activeProject.researchDesc = document.getElementById('input-research-desc').value.trim();
 
-            // Save Google Drive links & embedded images
             const mbDrive = document.getElementById('input-moodboard-drive')?.value.trim() || '';
             activeProject.moodboardDriveLink = mbDrive;
             if (mbDrive) {
@@ -2052,11 +2039,13 @@
                 activeProject.status = 'Proses';
             }
 
+            document.getElementById('student-project-title-heading').innerText = activeProject.title || 'Judul Proyek Desain Merchandise';
+
             saveProjectsToStorage();
             updateDashboardSummaries();
             renderGroupMerchTabs();
             if (showAlert) {
-                showToast(`Proyek ${activeProject.mediaType} berhasil disimpan dengan Google Drive!`, 'success');
+                showToast(`Proyek ${activeProject.mediaType} berhasil disimpan!`, 'success');
             }
         }
 
@@ -2065,22 +2054,15 @@
             if (!url) return '';
             const trimmed = url.trim();
 
-            // Extract Google Drive ID using Regex
-            // Matches:
-            // 1) /file/d/FILE_ID/...
-            // 2) ?id=FILE_ID or &id=FILE_ID
-            // 3) /d/FILE_ID/
             const fileIdMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
                                 trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
                                 trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
 
             if (fileIdMatch && fileIdMatch[1]) {
                 const fileId = fileIdMatch[1];
-                // Google Usercontent direct thumbnail link provides high-res embed with fast CDN caching
                 return `https://lh3.googleusercontent.com/d/${fileId}`;
             }
 
-            // Return original URL if not Google Drive format (e.g. Unsplash, Cloudinary, etc.)
             return trimmed;
         }
 
@@ -2178,59 +2160,6 @@
             }
         }
 
-        // --- IMAGE UPLOAD TO BASE64 ---
-        function handleGalleryUpload(inputElement, previewImgId, projectPropName) {
-            const file = inputElement.files && inputElement.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                showToast('Pilih file gambar valid (JPG, PNG, WEBP)!', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const MAX_WIDTH = 1200;
-                    const MAX_HEIGHT = 1200;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-
-                    const previewEl = document.getElementById(previewImgId);
-                    if (previewEl) previewEl.src = compressedBase64;
-
-                    if (activeProject && projectPropName) {
-                        activeProject[projectPropName] = compressedBase64;
-                        saveProjectsToStorage();
-                        updateDashboardSummaries();
-                    }
-                    showToast('Gambar berhasil diunggah!', 'success');
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
         // --- TEACHER VIEW & EVALUATION ---
         function renderTeacherList() {
             const tbody = document.getElementById('teacher-project-table-body');
@@ -2297,11 +2226,13 @@
                         <td class="p-4 text-slate-600"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[11px] font-bold border border-blue-100">${p.mediaType}</span></td>
                         <td class="p-4">${statusTag}</td>
                         <td class="p-4 font-black text-slate-900">${p.score !== null ? p.score : '-'}</td>
-                        <td class="p-4 text-right flex items-center justify-end gap-2"><button onclick="inspectProject('${p.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm inline-flex items-center gap-1">
-                        <i class="fa-solid fa-magnifying-glass"></i> Evaluasi</button>
-                        <button onclick="deleteProject('${p.id}')" title="Hapus Karya" class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm border border-rose-200 hover:border-rose-600 inline-flex items-center gap-1">
-                        <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                        <td class="p-4 text-right flex items-center justify-end gap-2">
+                            <button onclick="inspectProject('${p.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm inline-flex items-center gap-1">
+                                <i class="fa-solid fa-magnifying-glass"></i> Evaluasi
+                            </button>
+                            <button onclick="deleteProject('${p.id}')" title="Hapus Karya" class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm border border-rose-200 hover:border-rose-600 inline-flex items-center gap-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -2320,13 +2251,11 @@
                 </div>
             `).join(' ');
 
-            // Temukan semua proyek merchandise lain yang dimiliki kelompok yang sama
             const groupProjects = projectsData.filter(item => 
                 item.groupName?.toLowerCase() === p.groupName?.toLowerCase() && 
                 item.className === p.className
             );
 
-            // Tab pemilih produk untuk kelompok yang sama di modal penilaian guru
             const merchSwitcherTabs = groupProjects.map(projItem => {
                 const isActive = projItem.id === p.id;
                 const isPassed = projItem.status === 'Selesai';
@@ -2621,13 +2550,11 @@
             p.status = status;
             p.feedback = feedback;
 
-            // Simpan ke local storage terlebih dahulu agar langsung reaktif
             saveProjectsToStorage();
             closeModal('modal-eval');
             renderTeacherList();
             renderGallery();
 
-            // Simpan ke Firestore dengan fallback hening jika koneksi terputus
             if (db) {
                 db.collection("projects_data").doc(p.id).set(p)
                     .then(() => {
@@ -2642,13 +2569,11 @@
         }
 
         function deleteProject(projId) {
-            // Meminta konfirmasi agar tidak sengaja terhapus
             if (confirm("Peringatan: Apakah Anda yakin ingin menghapus karya ini secara permanen? Data akan hilang dari Portal Guru dan Galeri Publik.")) {
                 if (db) {
                     db.collection("projects_data").doc(projId).delete().catch(() => {});
                 }
                 
-                // Sinkronisasi data lokal agar langsung ter-update
                 projectsData = projectsData.filter(p => p.id !== projId);
                 try {
                     localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projectsData));
@@ -2753,49 +2678,44 @@
             e.preventDefault();
             const groupName = document.getElementById('login-group-name').value.trim();
             const className = document.getElementById('login-class').value;
-            const tSize = parseInt(document.getElementById('login-team-size-select').value, 10) || 5;
-
-            const m1 = document.getElementById('login-member-1')?.value.trim() || 'Anggota 1';
-            const m2 = document.getElementById('login-member-2')?.value.trim() || 'Anggota 2';
-            const m3 = document.getElementById('login-member-3')?.value.trim() || 'Anggota 3';
-            const m4 = document.getElementById('login-member-4')?.value.trim() || 'Anggota 4';
-            const m5 = document.getElementById('login-member-5')?.value.trim() || 'Anggota 5';
-            const m6 = document.getElementById('login-member-6')?.value.trim() || 'Anggota 6';
-
-            const memberList = [m1, m2, m3, m4, m5];
-            if (tSize === 6) memberList.push(m6);
-            const members = memberList.join(', ');
 
             if (!groupName) {
                 showToast('Mohon isi nama kelompok!', 'error');
                 return;
             }
 
+            // Cek apakah kelompok pada kelas tersebut sudah pernah dibuat sebelumnya
+            const existingGroupProj = projectsData.find(p => 
+                p.groupName.toLowerCase() === groupName.toLowerCase() && 
+                p.className === className
+            );
+            const tSize = existingGroupProj ? (existingGroupProj.teamSize || 5) : 5;
+            const members = existingGroupProj ? (existingGroupProj.members || 'Anggota 1, Anggota 2, Anggota 3, Anggota 4, Anggota 5') : 'Anggota 1, Anggota 2, Anggota 3, Anggota 4, Anggota 5';
+            const cityTheme = existingGroupProj ? (existingGroupProj.cityTheme || '') : '';
+
             currentUser = {
                 role: 'siswa',
-                groupName,
+                groupName: existingGroupProj ? existingGroupProj.groupName : groupName,
                 className,
                 teamSize: tSize,
                 members
             };
-            // Simpan data sesi kelompok ke Firebase Cloud agar tersimpan online
-    if (typeof db !== 'undefined') {
-        const docId = `${className}_${groupName}`.replace(/\s+/g, '_');
-        db.collection("studentSessions").doc(docId).set({
-            className: className,
-            groupName: groupName,
-            teamSize: tSize,
-            members: members,
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).catch(err => console.error("Gagal sinkronisasi cloud:", err));
-    }
 
-            // Ensure all 6 projects exist for this group
-            ensureAll6ProjectsForGroup(groupName, className, tSize, members, '');
+            if (db) {
+                const docId = `${className}_${groupName}`.replace(/\s+/g, '_');
+                db.collection("studentSessions").doc(docId).set({
+                    className: className,
+                    groupName: currentUser.groupName,
+                    teamSize: tSize,
+                    members: members,
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true }).catch(() => {});
+            }
 
-            // Pick the first project (or existing Tumbler)
+            ensureAll6ProjectsForGroup(currentUser.groupName, className, tSize, members, cityTheme);
+
             activeProject = projectsData.find(p => 
-                p.groupName.toLowerCase() === groupName.toLowerCase() && 
+                p.groupName.toLowerCase() === groupName.toLowerCase() &&
                 p.className === className
             ) || projectsData[0];
 
@@ -2804,7 +2724,7 @@
             saveProjectsToStorage();
             switchView('student');
             loadStudentForm();
-            showToast(`Selamat datang ${groupName}! Paket 6 proyek merchandise siap dikerjakan.`, 'success');
+            showToast(`Selamat datang ${currentUser.groupName} (${className})! Paket 6 proyek merchandise siap dikerjakan.`, 'success');
         }
 
         function handleGuruLogin(e) {
@@ -2919,9 +2839,9 @@
             loadProjectsFromStorage();
 
             if (currentUser && currentUser.role === 'siswa') {
-                //ensureAll6ProjectsForGroup(currentUser.groupName, currentUser.className, currentUser.teamSize, currentUser.members, '');
+                ensureAll6ProjectsForGroup(currentUser.groupName, currentUser.className, currentUser.teamSize, currentUser.members, '');
                 activeProject = projectsData.find(p => 
-                    p.groupName.toLowerCase() === currentUser.groupName.toLowerCase() && 
+                    p.groupName.toLowerCase() === currentUser.groupName.toLowerCase() &&
                     p.className === currentUser.className
                 ) || projectsData[0];
             } else if (projectsData.length > 0) {
